@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stock_user_basic,stock.picking.basic,stock.model_stock_picking,custom_pdf_reports.group_stock_user_basic,0,1,1,0
+access_stock_manager,stock.picking.manager,stock.model_stock_picking,custom_pdf_reports.group_stock_manager,1,1,1,0
+access_stock_super_admin,stock.picking.super.admin,stock.model_stock_picking,custom_pdf_reports.group_stock_super_admin,1,1,1,1

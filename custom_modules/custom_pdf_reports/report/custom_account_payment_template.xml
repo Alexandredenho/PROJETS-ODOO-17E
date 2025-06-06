@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_payslip">
+            <div t-attf-class="article o_report_layout_boxed o_company_#{o.company_id.id}_layout"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <div class="pt-5">
+                    <t t-call="web.address_layout"/>
+                </div>
+                <t t-out="0"/>
+            </div>
+        </template>
+
+        <template id="custom_report_payment_receipt">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="custom_pdf_reports.external_layout_payslip">
+                        <div class="header">
+                            <div class="row mb-2 mt-1" style="width: 30%; justify-content: space-between;">
+                                <div class="col-auto text-start"
+                                     style="min-width: 150px; border: 1px solid #3b3a39;">
+                                    <t t-set="company" t-value="o.company_id"/>
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                         style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                    <div class="text-start" style="margin-left: 10px;"
+                                         t-field="o.company_id.partner_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2 mt-5"
+                                 style="width:60%; justify-content: center; border: 1px solid #3b3a39; marin-bottom: 30%; margin-left: 30%;background-color: #f5f1ed">
+                                <h3 style="text-align: center;color: #3b3a39!important">Reçu de paiement:
+                                    <span t-field="o.partner_id.name"/>
+                                </h3>
+                            </div>
+
+
+                            <div class="row mb-2 mt-5" style="width: 100%; justify-content: space-between;">
+                                <div class="col-auto text-start"
+                                     style="max-width: 300px;max-height: 100px; border: 1px solid #3b3a39; margin-left: 30px">
+                                    <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                        <p style="margin-bottom: 0px;">Date de paiement:<span t-field="o.date"/>:
+                                        </p>
+
+                                        <t t-if="o.partner_type == 'customer'">
+                                            <p style="margin-bottom: 0px;">Client:
+                                                <span t-esc="o.partner_id.name"/>
+                                            </p>
+                                        </t>
+
+                                        <t t-if="o.partner_type == 'supplier'">
+                                            <p style="margin-bottom: 0px;">Fournisseur:
+                                                <span t-esc="o.partner_id.name"/>
+                                            </p>
+                                        </t>
+
+
+                                        <p style="margin-bottom: 0px;">Montant du paiement:
+                                            <span t-esc="o.amount"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto text-start"
+                                     style="max-width: 225px; max-height: 10px; margin-left: 200px; border: 1px solid #3b3a39;">
+                                    <t>
+                                        <div class="text-center" style="font-weight: bold;margin-left: 10px;">
+                                            <p style="margin-bottom: 0px;margin-top: 8px">Mode de paiement :
+                                                <span
+                                                        t-field="o.journal_id.name"/>
+                                            </p>
+                                            <p t-if="o.journal_id.type == 'bank'"
+                                               style="margin-bottom: 0px;margin-top: 5px">Chèque N° :
+                                                <span t-field="o.check_number"/>
+                                            </p>
+                                        </div>
+                                    </t>
+                                </div>
+
+                            </div>
+
+                            <table class="table table-sm table-bordered mt-5"
+                                   style="border: 1px solid black ;margin-bottom: 5px;">
+                                <thead style="display: table-row-group;background-color: #ca3003; color: white">
+                                    <tr>
+                                        <th class="text-start bg-light" name="th_description">
+                                            <strong>DATE DE FACTURE</strong>
+                                        </th>
+                                        <th class="text-start bg-light" name="th_quantity">
+                                            <strong>NUMERO DE FACTURE</strong>
+                                        </th>
+                                        <th class="text-center bg-light" name="th_quantity">
+                                            <strong>REFERENCE</strong>
+                                        </th>
+
+                                        <th class="text-center bg-light" name="th_quantity">
+                                            <strong>MONTANT</strong>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-start">
+                                            <t t-if="o.reconciled_invoice_ids">
+                                                <span t-field="o.reconciled_invoice_ids[0].invoice_date"/>
+                                            </t>
+
+                                        </td>
+
+                                        <td class="text-start">
+                                            <t t-if="o.reconciled_invoice_ids">
+                                                <span t-esc="o.reconciled_invoice_ids[0].name"/>
+                                            </t>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <t t-if="o.reconciled_invoice_ids">
+                                                <span t-field="o.reconciled_invoice_ids[0].ref"/>
+                                            </t>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <t t-if="o.reconciled_invoice_ids">
+                                                <span t-field="o.amount_total"
+                                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </t>
+
+                                            <t t-else="">
+                                                <span t-field="o.amount"
+                                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                            </t>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td/>
+                                        <td>
+                                            <strong>Montant dû Client :
+                                                <span t-field="o.partner_id.name"/>
+                                            </strong>
+                                        </td>
+                                        <td/>
+                                        <td class="text-center">
+                                            <strong>
+                                                <t t-if="o.reconciled_invoice_ids">
+                                                    <span t-field="o.reconciled_invoice_ids[0].amount_residual"
+                                                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-field="o.amount_due"
+                                                          t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                                </t>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+
+        <template id="report_payment_receipt" inherit_id="account.report_payment_receipt">
+            <xpath expr="." position="replace">
+                <t t-call="custom_pdf_reports.custom_report_payment_receipt"/>
+            </xpath>
+        </template>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Groupe utilisateur de base -->
+        <record id="group_stock_user_basic" model="res.groups">
+            <field name="name">Utilisateur Inventaire - Écriture seulement</field>
+            <field name="category_id" ref="base.module_category_inventory_inventory"/>
+            <field name="implied_ids" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Groupe gestionnaire -->
+        <record id="group_stock_manager" model="res.groups">
+            <field name="name">Gestionnaire Inventaire</field>
+            <field name="category_id" ref="base.module_category_inventory"/>
+
+        </record>
+
+<!--         <record id="group_stock_manager" model="res.groups">-->
+<!--        <field name="name">Administrator</field>-->
+<!--        <field name="category_id" ref="base.module_category_inventory_inventory"/>-->
+<!--        <field name="implied_ids" eval="[(4, ref('group_stock_user'))]"/>-->
+<!--        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>-->
+<!--    </record>-->
+
+        <!-- Groupe Super Admin -->
+        <record id="group_stock_super_admin" model="res.groups">
+            <field name="name">Super Admin Inventaire</field>
+            <field name="category_id" ref="base.module_category_inventory"/>
+        </record>
+
+    </data>
+</odoo>

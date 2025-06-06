@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_payslip">
+            <div t-attf-class="article o_report_layout_boxed o_company_#{o.company_id.id}_layout"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <div class="pt-5">
+                    <t t-call="web.address_layout"/>
+                </div>
+                <t t-out="0"/>
+            </div>
+        </template>
+
+        <template id="custom_report_stock_reception">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="custom_pdf_reports.external_layout_payslip">
+                        <div class="header">
+                            <t t-if="o.picking_type_id.code == 'incoming'">
+                                <div class="row mb-2 mt-1" style="width: 100%; justify-content: space-between;">
+                                    <div class="col-auto text-start"
+                                         style="min-width: 150px; border: 1px solid #3b3a39;">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">Fournisseur:
+                                        </div>
+                                        <img t-if="o.partner_id.image_128"
+                                             t-att-src="image_data_uri(o.partner_id.image_1920)"
+                                             style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                                        <div class="text-start" style="margin-left: 10px;" t-field="o.partner_id"
+                                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                    </div>
+                                    <div class="col-auto text-start"
+                                         style="min-width: 150px; margin-left: 410px; border: 1px solid #3b3a39;">
+                                        <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                        <t t-set="company" t-value="o.company_id"/>
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">Adresse
+                                            d'expidition:
+                                        </div>
+                                        <div class="text-start" style="margin-left: 10px;"
+                                             t-field="o.company_id.partner_id"
+                                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                    </div>
+                                </div>
+                            </t>
+
+
+                            <t t-if="o.picking_type_id.code == 'outgoing'">
+                                <div class="row mb-2 mt-1" style="width: 100%; justify-content: space-between;">
+
+                                    <div class="col-auto text-start"
+                                         style="min-width: 150px; border: 1px solid #3b3a39;">
+                                        <t t-set="company" t-value="o.company_id"/>
+                                        <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                        <div class="text-start" style="margin-left: 10px;"
+                                             t-field="o.company_id.partner_id"
+                                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                    </div>
+                                    <div class="col-auto text-start"
+                                         style="min-width: 150px; margin-left: 410px; border: 1px solid #3b3a39">
+                                        <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">Client:
+                                        </div>
+                                        <img t-if="o.partner_id.image_128"
+                                             t-att-src="image_data_uri(o.partner_id.image_1920)"
+                                             style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                        <div class="text-start" style="margin-left: 10px;" t-field="o.partner_id"
+                                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <t t-if="o.picking_type_id.code == 'internal'">
+                                <div class="row mb-2 mt-1" style="width: 30%; justify-content: space-between;">
+                                    <div class="col-auto text-start"
+                                         style="min-width: 150px; border: 1px solid #3b3a39;">
+                                        <t t-set="company" t-value="o.company_id"/>
+                                        <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                        <div class="text-start" style="margin-left: 10px;"
+                                             t-field="o.company_id.partner_id"
+                                             t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                    </div>
+                                </div>
+                            </t>
+
+
+                            <div class="row mb-2 mt-5" style="width: 100%; justify-content: space-between;">
+                                <div class="col-auto text-start"
+                                     style="max-width: 220px;max-height: 60px; border: 1px solid #3b3a39; margin-left: 30px">
+                                    <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                        <t t-if="o.picking_type_id.code == 'incoming' and not o.return_id">
+                                            <span>
+                                                Date de reception prévue :
+                                            </span>
+                                        </t>
+
+                                        <t t-if="o.picking_type_id.code == 'internal'">
+                                            <span>
+                                                Date de transfert prévue :
+                                            </span>
+                                        </t>
+
+                                        <t t-if="o.picking_type_id.code == 'incoming' and o.return_id">
+                                            <span>
+                                                Date de retour prévue :
+                                            </span>
+                                        </t>
+                                        <t t-if="o.picking_type_id.code == 'outgoing'">
+                                            <span>
+                                                Date de livraison prévue :
+                                            </span>
+                                        </t>
+                                        <p>
+                                            <t t-esc="o.scheduled_date"
+                                               t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm:ss"}'/>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto text-start"
+                                     style="max-width: 400px; max-height: 45px; margin-left: 50px; border: 1px solid #3b3a39;background-color: #f5f1ed">
+                                    <t t-if="o.picking_type_id.code == 'incoming' and not o.return_id">
+                                        <div style="font-weight: bold;margin-left: 10px;">
+                                            <h1 class="text-center">BON DE RECEPTION</h1>
+                                        </div>
+                                    </t>
+
+                                    <t t-if="o.picking_type_id.code == 'outgoing'">
+                                        <div style="font-weight: bold;margin-left: 10px;">
+                                            <h1 class="text-center">BON DE LIVRAISON</h1>
+                                        </div>
+                                    </t>
+
+                                    <t t-if="o.picking_type_id.code == 'internal'">
+                                        <div  style="font-weight: bold;margin-left: 5px;">
+                                            <h3 style="margin-top: 10px" class="text-center">BON DE TRANSFERT INTERNE</h3>
+                                        </div>
+                                    </t>
+
+                                    <t t-if="o.picking_type_id.code == 'incoming' and o.return_id">
+                                        <div style="font-weight: bold;margin-left: 10px;">
+                                            <h1 class="text-center">BON DE RETOUR</h1>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <div t-if="o.origin" class="col-auto text-start ml-3"
+                                     style="max-width:150px;max-height: 55px; margin-left: 50px; border: 1px solid #3b3a39;">
+                                    <t t-if="o.picking_type_id.code == 'incoming' and not o.return_id">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <span>
+                                                Achat N° :
+                                            </span>
+                                            <p>
+                                                <t t-esc="o.origin"/>
+                                            </p>
+                                        </div>
+                                    </t>
+                                    <t t-if="o.picking_type_id.code == 'outgoing'">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <span>
+                                                Vente N° :
+                                            </span>
+                                            <p>
+                                                <t t-esc="o.origin"/>
+                                            </p>
+                                        </div>
+                                    </t>
+
+                                    <t t-if="o.picking_type_id.code == 'incoming' and o.return_id">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <p style="margin-left: 10px">
+                                                <t t-esc="o.origin"/>
+                                            </p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+
+                            <table class="table table-sm table-bordered mt-5"
+                                   style="border: 1px solid black ;margin-bottom: 5px;">
+                                <thead style="display: table-row-group;background-color: #f5f1ed">
+                                    <tr>
+                                        <th class="text-start bg-light" name="th_description">
+                                            <strong>Produit Commandé</strong>
+                                        </th>
+                                        <th class="text-center bg-light" name="th_quantity">
+                                            <strong>QTE Commandée</strong>
+                                        </th>
+                                        <th class="text-center bg-light" name="th_quantity">
+                                            <strong>QTE Livrée</strong>
+                                        </th>
+
+                                        <th t-if="o.picking_type_id.code == 'internal'" class="text-center bg-light" name="th_emplacement_origin">
+                                            <strong>Origine</strong>
+                                        </th>
+
+                                        <th t-if="o.picking_type_id.code == 'internal'" class="text-center bg-light" name="th_emplacement_destination">
+                                            <strong>Destination</strong>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.move_line_ids_without_package" t-as="line">
+                                        <tr>
+                                            <td class="text-start">
+                                                <span t-field="line.product_id.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-esc="line.move_id.product_uom_qty"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.quantity"/>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <span t-field="line.location_id.display_name"/>
+                                            </td>
+
+                                            <td class="text-center">
+                                                <span t-field="line.location_dest_id.display_name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+
+                            <p t-field="o.note" class="mt-4"/>
+                            <div class="oe_structure"/>
+
+
+                            <div style="margin-top: 20%;">
+                                <div class="row mb-2 mt-5" style="width: 100%; justify-content: space-between;">
+                                    <div t-if="o.picking_type_id.code != 'internal'" class="col-auto text-start"
+                                         style="min-width: 250px;margin-left: 5px">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <h3 class="text-center"
+                                                style="border: 1px solid #8fcef8;background-color: #f5f1ed">
+                                                PDG
+                                            </h3>
+
+                                            <p class="text-center">
+                                                <span t-field="o.company_owner_id.name"/>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div t-if="o.picking_type_id.code == 'internal'" class="col-auto text-start"
+                                         style="min-width: 250px;margin-left: 5px">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <h3 class="text-center"
+                                                style="border: 1px solid #8fcef8;background-color: #f5f1ed">
+                                                CONTROLEUR
+                                            </h3>
+
+                                            <p class="text-center">
+                                                <span t-field="o.picking_controller_id.name"/>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div t-if="o.picking_type_id.code != 'internal'" class="col-auto text-start"
+                                         style="min-width: 250px;margin-left: 5px">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <h3 class="text-center"
+                                                style="border: 1px solid #8fcef8;background-color: #f5f1ed">
+                                                CHAUFFEUR
+                                            </h3>
+
+                                            <p class="text-center">
+                                                <span t-field="o.driver_id.name"/>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto text-start"
+                                         style="min-width: 250px; margin-left: 50px;">
+                                        <div style="padding: 5px 0px; font-weight: bold;">
+                                            <h3 class="text-center"
+                                                style="border: 1px solid #8fcef8;background-color: #f5f1ed">
+                                                MAGASINIER
+                                            </h3>
+                                            <p class="text-center">
+                                                <span t-field="o.picking_manager_id.name"/>
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_deliveryslip" inherit_id="stock.report_deliveryslip">
+            <xpath expr="." position="replace">
+                <t t-call="custom_pdf_reports.custom_report_stock_reception"/>
+            </xpath>
+        </template>
+
+        <template id="report_return_slip" inherit_id="stock.report_return_slip">
+            <xpath expr="." position="replace">
+                <t t-call="custom_pdf_reports.custom_report_stock_reception"/>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

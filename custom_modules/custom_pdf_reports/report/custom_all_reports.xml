@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="custom_action_report_delivery" model="ir.actions.report">
+            <field name="name">Delivery Slip</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_pdf_reports.custom_report_stock_reception</field>
+            <field name="report_file">custom_pdf_reports.custom_report_stock_reception</field>
+            <field name="print_report_name">'%s - %s - %s' % (('Bon de Livraison' if object.picking_type_id.code == 'outgoing' else ('Bon de Réception' if object.picking_type_id.code == 'incoming' and not object.return_id else('Bon de Retour' if object.picking_type_id.code == 'incoming' and object.return_id else 'Bon de transfert interne'))), object.partner_id.name or '', object.name)
+            </field>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>
