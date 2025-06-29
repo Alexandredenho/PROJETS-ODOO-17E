@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record model="ir.ui.view" id="operation_a_justifier_form_view">
+		<field name="name">Justifier l'opération</field>
+		<field name="model">operation.justifier</field>
+		<field name="arch" type="xml">
+			<form string="Justifier l'opération">
+				<group>
+					<group>
+						<field name="date_operation" />
+						<field name="montant" />
+						<field name="currency_id"/>
+						<field name="caisse_id" />
+						<field name="currency_amount"/>
+						<field name="diffenrence"/>
+					</group>
+					<group>
+						<field name="operation_id"/>
+						<field name="a_justifier"/>
+						<field name="partner_id"/>
+						<field name="type_partenaire"/>
+					</group>
+				</group>
+				<notebook>
+					<page name="operation" string="Opéraion">
+						<field name="line_ids"/>
+					</page>
+				</notebook>
+				<group class="oe_right">
+					<field name="total_justifie" readonly="1"/>
+				</group>
+				<footer>
+					<button name="valide_operation" type="object" string="Valider" class="oe_highlight" />
+					<button special="cancel" string="Annuler" readonly="1"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+
+	<record id="operation_a_justifier_menu_action" model="ir.actions.act_window">
+		<field name="name">Justifier l'opération</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">operation.justifier</field>
+		<field name="view_mode">form</field>
+		<field name="view_id" ref="operation_a_justifier_form_view"/>
+		<field name="target">new</field>
+	</record>
+
+	<record id="operation_a_justifier_tree" model="ir.ui.view">
+		<field name="name">caisse.attente.line.wizard.tree</field>
+		<field name="model">caisse.attente.line.wizard</field>
+		<field name="arch" type="xml">
+			<tree string="Opération">
+				<field name="date"/>
+				<field name="est_remboursement"/>
+				<field name="libelle"/>
+				<field name="montant"/>
+				<field name="currency_id"/>
+				<field name="taux"/>
+				<field name="taux_de_change"/>
+				<field name="categorie_id"/>
+				<field name="caisse_id" readonly="[('est_remboursement', '=', False)]"/>
+				<field name="note"/>
+			</tree>
+		</field>
+	</record>
+
+	<record id="caisse_attente_line_wizard_form" model="ir.ui.view">
+		<field name="name">caisse.attente.line.wizard.form</field>
+		<field name="model">caisse.attente.line.wizard</field>
+		<field name="arch" type="xml">
+			<form string="Justifier">
+				<sheet>
+					<group>
+						<group>
+							<field name="date"/>
+							<field name="est_remboursement"/>
+							<field name="libelle"/>
+							<field name="montant_devise"/>
+							<field name="montant"/>				
+						</group>
+						<group>
+							<field name="currency_id"/>
+							<field name="taux"/>
+							<field name="taux_de_change" invisible="[('est_remboursement', '=', False)]" />
+							<field name="categorie_id" />
+							<field name="caisse_id"
+							 invisible="[('est_remboursement', '=', False)]"
+							 required="'est_remboursement', '=', True"/>
+							<field name="note"/>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+</odoo>

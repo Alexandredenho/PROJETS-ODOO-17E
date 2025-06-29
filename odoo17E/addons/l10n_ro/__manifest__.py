@@ -19,7 +19,7 @@ It also adds the Registration Number for Romania in Odoo.
 Romanian accounting chart and localization.
     """,
     'data': [
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'data/account_tax_report_data.xml',
         'data/res.bank.csv',
     ],

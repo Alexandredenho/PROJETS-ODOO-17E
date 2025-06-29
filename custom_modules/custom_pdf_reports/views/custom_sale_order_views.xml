@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="custom_sale_order_form_view" model="ir.ui.view">
+        <field name="name">custom.sale.order.form.views</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sales_person']/field[@name='user_id']"
+                   position="after">
+                <field name="sales_manager_id" widget="many2one_avatar_user"/>
+                <field name="company_owner_id" widget="many2one_avatar_user"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

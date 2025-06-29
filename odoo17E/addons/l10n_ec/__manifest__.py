@@ -59,7 +59,7 @@ Master Data:
         'views/l10n_latam_document_type_view.xml',
         'views/l10n_ec_sri_payment.xml',
         'views/account_journal_view.xml',
-        "views/res_partner_view.xml",
+        "views/res_partner_views.xml",
     ],
     'demo': [
         'demo/demo_company.xml',

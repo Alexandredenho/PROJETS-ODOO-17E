@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="paperformat_rdc_a6" model="report.paperformat">
+		<field name="name">A4 RDC</field>
+		<field name="default" eval="True"/>
+		<field name="format">A4</field>
+		<field name="orientation">Landscape</field>
+		<field name="margin_top">5</field>
+		<field name="margin_bottom">5</field>
+		<field name="margin_left">5</field>
+		<field name="margin_right">5</field>
+		<field name="header_line" eval="False"/>
+		<field name="header_spacing">3</field>
+		<field name="dpi">100</field>
+	</record>
+
+    <report
+		id = "th_caisse_externe_detail_report"
+		model = "cash.report.wizard"
+		string = "Rapport détaillé de caisse"
+		report_type = "qweb-pdf"
+		name = "th_caisse_externe.caisse_externe_report_detail_view_report_view"
+		file = "th_caisse_externe.caisse_externe_report_detail_view_report_view"
+		paperformat="paperformat_rdc_a6"
+		/>
+		<template id="caisse_externe_report_detail_view_report_view">
+			<t t-call="web.html_container">
+                <style>
+					.page, table{
+						font-size:18px;
+					}
+					h2{
+						text-align:center;
+						text-decoration: underline;
+					}
+
+					.table{
+						border-collapse:collapse;
+						border:1px solid black;
+						width: 100%;
+					}
+					.table th{
+						border:1px solid black;
+					}
+					.table td{
+						border:1px solid black;
+					}
+					.table tr{
+						border:1px solid black;
+					}
+					
+					p{
+						text-align:right;
+					}
+					
+				</style>
+				<div class="page">
+					<div class="entete">
+						<table width="100%">
+							<tr>
+								<td width="20%" rowspan="2"><img style="width: 100px;" t-attf-src="data:image/*;base64,{{company_id['logo']}}"/></td>
+								<td><t t-esc="company_id['name']"/></td>
+								<td width="30%" style="text-align:right;">Imprimé le,<t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+							</tr>
+							<tr style="text-align:center;">
+								<td class="title2" colspan="3"><t t-esc="company_id['description']" /></td>
+							</tr>
+							<tr>
+								<td><t t-esc="company_id['street']" /></td>
+								<td width="45%">RCCM : <t t-esc="company_id['rccm']" /><br/>
+									ID Nat :<t t-esc="company_id['vat']" />
+								</td>
+							</tr>
+							<tr>
+								<td>Email : <t t-esc="company_id['email']" /></td>
+								<td>NIF : <t t-esc="company_id['nif']" /></td>
+							</tr>
+							<tr>
+								<td>Tel : <t t-esc="company_id['phone']" /></td>
+								<td>N° Imp/Ex : <t t-esc="company_id['numeroimpex']" /></td>
+							</tr>
+						</table>
+					</div>
+
+					<div>
+						<t t-foreach="caisse_list" t-as="liste">						
+							<h3>Rapport de caisse de la date du <t t-esc="liste['start_date']"/> au  <t t-esc="liste['end_date']"/></h3>
+							<h4>Type de caisse : <t t-esc="liste['type_caisse']"/></h4>
+							<p>Caissier : <t t-esc="liste['caissier']"/></p>
+							<p>Devise : <t t-esc="liste['devise']"/><br/>
+							<separator/>
+							<table width="100%">
+								<tbody>
+									<tr>
+										<td width="80%"></td>
+										<td>Solde initial :</td>
+										<td style="text-align:right;"><t t-esc="'{:,.0f}'.format(round(liste['solde_initial'],2)).replace(',', ' ').replace('.', ',') "/></td>
+									</tr>
+									<tr>
+										<td width="80%"></td>
+										<td>Entrée : </td>
+										<td style="text-align:right;"><t t-esc="'{:,.0f}'.format(round(liste['total_entree'], 2)).replace(',', ' ').replace('.', ',') "/></td>
+									</tr>
+									<tr>
+										<td width="80%"></td>
+										<td>Sortie : </td>
+										<td style="text-align:right;"><t t-esc="'{:,.0f}'.format(round(liste['total_sortie'], 2)).replace(',', ' ').replace('.', ',') "/></td>
+									</tr>
+									<tr>
+										<td width="80%"></td>
+										<td>Solde final : </td>
+										<td style="text-align:right;"><t t-esc="'{:,.0f}'.format(round(liste['solde_final'], 2)).replace(',', ' ').replace('.', ',') "/></td>
+									</tr>
+								</tbody>
+							</table>
+
+							</p>
+							<table class="table">
+								<tr>
+									<td>Référence</td>
+									<td>Date</td>
+									<td>Libellé</td>
+									<td>Partenaire</td>
+									<td>Entrée</td>
+									<td>Sortie</td>
+									<td>Bénéficaire</td>
+									<td>Commentaire</td>
+									<td>Categorie d'opération</td>
+									<td>Compte analytique</td>
+								</tr>
+
+								<t t-foreach="liste['operations_list']" t-as="operation_id">
+									<tr>
+										<td><t t-esc="operation_id['reference']"/></td>
+										<td><t t-esc="operation_id['date']"/></td>
+										<td><t t-esc="operation_id['full_name']"/></td>
+										<td><t t-esc="operation_id['partner_id']"/></td>
+										<td><t t-esc="round(operation_id['currency_amount'],2) if operation_id['currency_amount'] > 0 else 0"/></td>
+										<td><t t-esc="abs(round(operation_id['currency_amount'],2)) if 0 > operation_id['currency_amount'] else 0"/></td>
+										<td><t t-esc="operation_id['beneficiaire']"/></td>
+										<td><t t-esc="operation_id['note']"/></td>
+										<td><t t-esc="operation_id['categorie_id']"/></td>
+										<td><t t-esc="operation_id['analytique']"/></td>
+									</tr>
+								</t>
+								<tr>
+									<th colspan="4">Total</th>
+									<th><t t-esc="round(liste['total_entree'],2)"/></th>
+									<th><t t-esc="round(liste['total_sortie'],2)"/></th>
+									<th colspan="4"></th>
+								</tr>
+							</table>
+						</t>
+					</div>
+					<br/><br/>
+					<div class="pied" id="pied">
+						<table width="100%" clas="table">
+							<tr>									
+								<th width="25%">Visa agent saisie</th>
+								<th width="45%">Visa superviseur</th>									
+							</tr>
+							<tr height="150">									
+								<th width="25%"></th>
+								<th width="45%"></th>
+							</tr>
+						</table>
+					</div>
+                    <p style="page-break-before:always;"/>
+				</div>	
+            </t>
+        </template>
+</odoo>

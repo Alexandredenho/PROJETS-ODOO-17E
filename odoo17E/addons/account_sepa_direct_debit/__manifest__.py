@@ -51,7 +51,7 @@ try to use this method on an invoice for whose payment no mandate can be used.
         'views/account_journal_dashboard_view.xml',
         'views/report_invoice.xml',
         'views/res_config_settings_views.xml',
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'views/account_batch_payment_views.xml',
         'views/account_move_view.xml',
         'views/account_journal_views.xml',

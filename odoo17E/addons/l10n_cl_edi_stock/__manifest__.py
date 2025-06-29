@@ -28,7 +28,7 @@ the SII.
         'template/dd_template.xml',
         'data/mail_template_data.xml',
         'views/dte_caf_view.xml',
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'views/stock_picking_views.xml',
         'views/report_delivery_guide.xml',
         'views/menuitems.xml',

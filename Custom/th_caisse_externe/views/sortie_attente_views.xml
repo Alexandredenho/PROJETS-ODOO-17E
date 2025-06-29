@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="account_caissei_line_attente_extene_menu_action" model="ir.actions.act_window">
+        <field name="name">Opérations en attente</field>
+        <field name="res_model">account.caisse.line</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="domain">[('categorie_id.a_justifier','=',True)]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                Rien à justifier
+            </p>
+        </field>
+    </record>
+
+    <menuitem name="Opérations en attente" 
+        sequence="10" 
+        parent="caisse_operation_menu" 
+        id="toute_les_lignes_de_caisse_en_attente" 
+        action="account_caissei_line_attente_extene_menu_action"/>
+</odoo>

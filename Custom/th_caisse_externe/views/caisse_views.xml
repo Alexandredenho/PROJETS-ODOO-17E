@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+
+        <record id="account_caisse_extene_menu_action" model="ir.actions.act_window">
+            <field name="name">Caisse externe</field>
+            <field name="res_model">account.caisse</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_noconten_create">
+                    vide
+                </p>
+            </field>
+        </record>
+
+        <record id="account_caisse_form_view" model="ir.ui.view">
+            <field name="name">account.caisse.form</field>
+            <field name="model">account.caisse</field>
+            <field name="arch" type="xml">
+                <form string="Caisse">
+                    <header>
+                        <button name="poster_comptabilite_caisse_p"
+                                type="object" invisible="state not in ('confirmed')"
+                                string="Poster la caisse" class="btn btn-primary"
+                        />
+
+                        <button name="confirmer_caisse"
+                                type="object"
+                                invisible="state not in ('draft')" string="Confirmer"
+                                class="btn btn-primary"
+                        />
+
+                        <button name="mettre_brouillon"
+                                type="object"
+                                invisible="state not in ('canceled')"
+                                string="Mettre en brouillon"
+                        />
+
+                        <button name="annuler_caisse"
+                                type="object"
+                                invisible="state not in ('confirmed')"
+                                string="Annuler"
+                        />
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,posted"/>
+                    </header>
+
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="account_move_list" type="object" class="oe_stat_button" icon="fa-list">
+                                <field widget="statinfo" name="account_move_total" string="Pièces comptables"/>
+                            </button>
+                        </div>
+
+
+                        <group>
+                            <group>
+                                <field name="company_id" invisible="1"/>
+                                <field name="state_change" invisible="0"/>
+                                <field name="reference" readonly="state_change == True"/>
+                                <field name="type_id" readonly="state_change == True"/>
+                                <field name="account_journal_id" readonly="state_change == True"/>
+                                <field name="date_start" readonly="state_change == True"/>
+                                <field name="date_end" readonly="state_change == True"/>
+                            </group>
+
+
+                            <group>
+                                <label for="solde_initial"/>
+                                <div>
+                                    <field class="oe_inline" widget="monetary" name="solde_initial" readonly="state_change == True"/>
+                                    <button name="billetage_id" string="→ Count" type="object" class="oe_link oe_inline"
+                                            context="{'default_balance':'start', 'default_caisse_id':active_id}"/>
+                                </div>
+                                <label for="solde_final"/>
+                                <div>
+                                    <field class="oe_inline" widget="monetary" name="solde_final" readonly="state_change == True"/>
+                                    <button name="billetage_id" string="→ Count"
+                                            type="object" class="oe_link oe_inline"
+                                            context="{'default_balance':'close', 'default_caisse_id':active_id}"/>
+                                </div>
+                                <field name="currency_id" readonly="1"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page name="Caisse" string="Liste des opérations">
+                                <field name="operation_ids" readonly="state_change == True">
+                                    <tree>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="reference"/>
+                                        <field name="date"/>
+                                        <field name="libelle"/>
+                                        <field name="reference_origine"/>
+                                        <field name="type_partenaire"/>
+                                        <field name="partner_id"/>
+                                        <field name="categorie_id"/>
+                                        <field name="account_id" optional="hide"/>
+                                        <field name="move_id" optional="show"/>
+                                        <field name="currency_id" options="{'no_create': True, 'no_create_edit':True}"/>
+                                        <field name="montant"/>
+                                        <field name="beneficiaire" optional="show"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="note" optional="show"/>
+                                        <field name="piece_joint" optional="show"/>
+                                        <button name="action_print_th_caisse_externe_line_report"
+                                                type="object" class="btn btn-primary" string="IMPRIMER"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="currency_amount" optional="hide"/>
+                                    </tree>
+                                    <form string="Ajouter une opération">
+                                        <header>
+                                            <field name="state" widget="statusbar"
+                                                   statusbar_visible="draft,confirmed,posted"/>
+                                        </header>
+                                        <group>
+                                            <group>
+                                                <field name="date"/>
+                                                <field name="libelle"/>
+                                                <field name="a_justifier"/>
+                                                <field name="reference_origine"/>
+                                                <field name="type_partenaire"/>
+                                                <field name="partner_id"
+                                                       options="{'no_create': True, 'no_create_edit':True}"/>
+                                                <field name="categorie_id"
+                                                       options="{'no_create': True, 'no_create_edit':True}"/>
+                                                <field name="account_id"
+                                                       options="{'no_create': True, 'no_create_edit':True}"/>
+                                            </group>
+                                            <group>
+                                                <field name="move_id"
+                                                       options="{'no_create': True, 'no_create_edit':True}"/>
+                                                <field name="currency_id"
+                                                       options="{'no_create': True, 'no_create_edit':True}"/>
+                                                <field name="montant"/>
+                                                <field name="beneficiaire"/>
+                                                <field name="company_id" invisible="1"/>
+                                                <field name="note"/>
+                                                <field name="piece_joint"/>
+                                                <field name="currency_amount"/>
+                                            </group>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page name="move_line" string="Ecritures comptables">
+                                <field name="move_line_ids">
+                                    <tree>
+                                        <field name="account_id"/>
+                                        <field name="currency_id"/>
+                                        <field name="amount_currency"/>
+                                        <field name="name"/>
+                                        <field name="debit"/>
+                                        <field name="credit"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="info" string="Autres informations">
+                                <group>
+                                    <group>
+                                        <field name="user_id" readonly="1"/>
+                                        <field name="company_id"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_caisse_tree" model="ir.ui.view">
+            <field name="name">account.caisse.tree</field>
+            <field name="model">account.caisse</field>
+            <field name="arch" type="xml">
+                <tree string="Caisse"
+                      decoration-primary="state=='draft'"
+                      decoration-success="state=='posted'">
+                    <field name="reference"/>
+                    <field name="account_journal_id"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="user_id"/>
+                    <field name="company_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <menuitem name="Mes opérations"
+                  sequence="5"
+                  parent="caisse_operation_menu"
+                  id="mes_lignes_de_caisse"
+                  action="account_mes_extene_menu_action"/>
+
+    </data>
+</odoo>

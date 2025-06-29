@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+         <record id="account_caisse_line_view_form" model="ir.ui.view">
+            <field name="name">Opérations de caisse</field>
+            <field name="model">account.caisse.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_print_th_caisse_externe_line_report" type="object" class="btn btn-primary"
+                                string="IMPRIMER"/>
+                        <button name="poster_operation" type="object" state="confirmed" class="btn btn-primary"
+                                string="Poster"/>
+                        <button name="%(operation_a_justifier_menu_action)d" invisible="[('a_justifier', '=', False)]"
+                                type="action" string="Justifier"
+                                context="{'default_operation_id': active_id}"
+                        />
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,posted"/>
+                    </header>
+
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="company_id" invisible="1"/>
+                                <field name="reference"/>
+                                <field name="caisse_id"/>
+                                <field name="date"/>
+                                <field name="libelle"/>
+                                <field name="partner_id"/>
+                                <field name="move_id"/>
+                                <field name="beneficiaire"/>
+                                <field name="montant" widget="monetary" string="Montant initial"/>
+                                <field name="montant_en_lettre"/>
+                            </group>
+                            <group>
+                                <field name="note"/>
+                                <field name="categorie_id"/>
+                                <field name="piece_joint"/>
+                                <field name="a_justifier"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="account_caisse_line_tree" model="ir.ui.view">
+            <field name="name">Liste des opérations</field>
+            <field name="model">account.caisse.line</field>
+            <field name="arch" type="xml">
+                <tree string="Ligne d'opération de caisse"
+                      create="false">
+                    <field name="company_id" invisible="1"/>
+                    <field name="reference"/>
+                    <field name="date"/>
+                    <field name="libelle"/>
+                    <field name="currency_id"/>
+                    <field name="categorie_id"/>
+                    <field name="partner_id"/>
+                    <field name="montant" widget="monetary"/>
+                    <field name="entree"/>
+                    <field name="sortie"/>
+                    <field name="solde"/>
+                    <field name="company_id" optional="show"/>
+                    <field name="note" optional="show"/>
+                    <field name="piece_joint" optional="show"/>
+                    <field name="state" optional="show"/>
+                    <field name="a_justifier" invisible="0"/>
+                    <button name="action_print_th_caisse_externe_line_report" type="objet" class="btn btn-primary"
+                            string="IMPRIMER"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="account_caissei_line_extene_menu_action" model="ir.actions.act_window">
+            <field name="name">Opérations de caisse</field>
+            <field name="res_model">account.caisse.line</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="domain">[('state','in', ['confirmed','posted'])]</field>
+            <field name="help" type="html">
+                <p class="oe_view_noconten_create">
+                    vide
+                </p>
+            </field>
+        </record>
+
+
+        <record id="account_mes_extene_menu_action" model="ir.actions.act_window">
+            <field name="name">Mes opérations</field>
+            <field name="res_model">account.caisse.line</field>
+            <field name="view_mode">tree,form,pivot,graph</field>
+            <field name="domain">[('state','in', ['confirmed','posted']),('user_id','=', uid)]</field>
+            <field name="help" type="html">
+                <p class="oe_view_noconten_create">
+                    vide
+                </p>
+            </field>
+        </record>
+
+
+         <menuitem name="Toutes les opération"
+                  sequence="10"
+                  parent="caisse_operation_menu"
+                  id="toute_les_lignes_de_caisse"
+                  groups="th_caisse_externe.group_caisse_superviseur,th_caisse_externe.group_caisse_admin"
+                  action="account_caissei_line_extene_menu_action"/>
+
+    </data>
+</odoo>

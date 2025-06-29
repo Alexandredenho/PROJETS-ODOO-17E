@@ -27,7 +27,7 @@ DIOT Report
         "data/templates/cfdicoa.xml",
         "data/templates/cfdibalance.xml",
         "views/res_country_view.xml",
-        "views/res_partner_view.xml",
+        "views/res_partner_views.xml",
     ],
     "installable": True,
     "auto_install": ['l10n_mx', 'account_reports'],

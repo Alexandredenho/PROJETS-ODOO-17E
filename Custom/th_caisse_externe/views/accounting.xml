@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="account_caisse_extene_accounting_menu_action" model="ir.actions.act_window">
+        <field name="name">Caisse externe</field>
+        <field name="res_model">account.caisse</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','=','confirmed')]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                vide
+            </p>
+        </field>
+    </record>
+
+<!--    <record id="account_move_form" model="ir.ui.view">-->
+<!--        <field name="name">account.move.form</field>-->
+<!--        <field name="model">account.move</field>-->
+<!--        <field name="inherit_id" ref="account.view_move_form" />-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//button[@name='action_invoice_register_payment']" position="replace">-->
+<!--                -->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <menuitem
+        id="comptabilite_caisse_menu"
+        name="Comptabilité"
+        groups="group_caisse_superviseur,group_caisse_admin"
+        action="account_caisse_extene_accounting_menu_action"
+        parent="caise_externe"
+        sequence="30"/>
+</odoo>

@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="account_bank_statement_form" model="ir.ui.view">
+        <field name="name">account.payment.form</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form" />
+        <field name="arch" type="xml">
+            <field name="journal_id" position="after">
+                <field name="caisse_id"/>
+                <field name="caisse_line_id"/>
+            </field>
+        </field>
+    </record>
+
+
+    <record id="modele_billetage_action" model="ir.actions.act_window">
+        <field name="name">Modèle de billetage</field>
+        <field name="res_model">modele.billetage</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p>VIDE</p>
+        </field>
+    </record>
+
+    <record id="modele_billetage_form" model="ir.ui.view">
+        <field name="name">modele.billetage.form</field>
+        <field name="model">modele.billetage</field>
+        <field name="arch" type="xml">
+            <form string="Modèle de billetage">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" invisible="0"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="line_ids" string="Lignes de billetage">
+                           <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="nombre"/>
+                                    <field name="valeur"/>
+                                    <field name="montant"/>
+                                </tree>
+                           </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem
+        id="config_modele_billetage_menu"
+        name="Modèle de billetage"
+        action="modele_billetage_action"
+        parent="th_caisse_externe.caisse_config_menu"
+        sequence="50"/>
+</odoo>

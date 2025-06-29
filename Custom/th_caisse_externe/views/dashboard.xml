@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <record id="accout_journal_menu_action_dashoard" model="ir.actions.act_window">
+        <field name="name">Tableau de bord</field>
+        <field name="res_model">type.caisse</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('user_id','=', uid)]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                Vide
+            </p>
+            <i>Créer un type de caisse dans la configuration</i>
+        </field>
+    </record>
+
+
+    <record id="account_journal_dashboard_view_kanban" model="ir.ui.view">
+        <field name="name">Type de caisse</field>
+        <field name="model">type.caisse</field>
+        <field name="arch" type="xml">
+        <kanban class="oe_background_grey o_kanban_dashboard o_emphasize_colors o_stock_kanban" create="0">
+            <field name="name"/>
+            <field name="journal_id"/>
+            <field name="currency_id"/>
+            <field name="solde_caisse"/>
+            <field name="company_id"/>
+            <field name="color"/>
+            <templates>
+                <t t-name="kanban-box">
+                    <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''}">
+                        <div>
+                            <div t-attf-class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title mb16">
+                                    <div class="o_primary">
+                                        <a type="object" name="liste_des_operation" context="{'default_type_id':active_id}">
+                                            <field name="name"/>
+                                        </a>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            Société : <field name="company_id"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            Solde caisse :<field name="solde_caisse"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_manage_button_section">
+                                    <a class="o_kanban_manage_toggle_button" href="#"><i class="fa fa-ellipsis-v" role="img" aria-label="Manage" title="Manage"/></a>
+                                </div>
+                            </div>
+                            <div class="container o_kanban_card_content">
+                                <div class="row">
+                                    <div class="col-6 o_kanban_primary_left">
+                                        <button class="btn btn-primary" name="liste_des_operation" type="object" context="{'default_type_id':active_id}">
+                                            Commencer
+                                        </button>
+                                    </div>								
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container o_kanban_card_manage_pane dropdown-menu" role="menu">
+                                <div class="row">
+                                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_view">
+                                        <div role="menuitem" class="o_kanban_card_manage_title">
+                                            <span>Liste des opérations</span>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="liste_des_operation" context="{'default_sexe':'feminin', 'default_classe':active_id}" type="object">Liste des filles</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 o_kanban_card_manage_section o_kanban_manage_new">
+                                        <div role="menuitem" class="o_kanban_card_manage_title">
+                                            <span>Nouvau</span>
+                                        </div>
+                                            <div role="menuitem">
+                                            <a name="nouvelle_eleve" type="object" >Enregister une opération</a>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="nouvelle_classe" context="{'default_classe':active_id}"  type="object">Classe</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                    <div t-if="widget.editable" class="o_kanban_card_manage_settings row">
+                                    <div class="col-8" role="menuitem" aria-haspopup="true">
+                                        <ul class="oe_kanban_colorpicker" data-field="color" role="menu"/>
+                                    </div>
+                                    <div role="menuitem" class="col-4">
+                                        <a class="dropdown-item" role="menuitem" type="edit">Configuration</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <record id="accout_journal_menu_action_config" model="ir.actions.act_window">
+        <field name="name">Type de caisse</field>
+        <field name="res_model">type.caisse</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                Vide
+            </p>
+            <i>Créer votre premier type de caisse</i>
+        </field>
+    </record>
+
+    <record id="type_caisse_form" model="ir.ui.view">
+        <field name="name">Type de caisse</field>
+        <field name="model">type.caisse</field>
+        <field name="arch" type="xml">
+            <form string="Type de caisse">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="journal_id"/>
+                            <field name="currency_id"/>
+                            <field name="solde_caisse"/>
+                            <field name="seuil_maximal"/>
+                        </group>
+                        <group>
+                            <field name="auto_post"/>
+                            <field name="user_id"/>
+                            <field name="color" invisible="1"/>
+                            <field name="company_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="type_caisse_tree" model="ir.ui.view">
+        <field name="name">type.caisse.tree</field>
+        <field name="model">type.caisse</field>
+        <field name="arch" type="xml">
+            <tree string="Type de caisse">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="currency_id"/>
+                <field name="solde_caisse"/>
+                <field name="seuil_maximal"/>
+                <field name="auto_post"/>
+                <field name="user_id"/>
+                <field name="color" widget="color"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="categorie_operation_caisse_menu_action" model="ir.actions.act_window">
+        <field name="name">Catégorie d'opération</field>
+        <field name="res_model">categorie.operation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                vide
+            </p>
+        </field>
+    </record>
+
+    <record id="categorie_operation_tree" model="ir.ui.view">
+        <field name="name">categorie.operation.tree</field>
+        <field name="model">categorie.operation</field>
+        <field name="arch" type="xml">
+            <tree string="Catégorie d'opération">
+                <field name="name"/>                            
+                <field name="is_partner"/>
+                <field name="remboursement"/>
+                <field name="account_id"/>
+                <field name="a_justifier" />                            
+                <field name="type_operation"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="categorie_operation_form" model="ir.ui.view">
+        <field name="name">Catégorie de caisse</field>
+        <field name="model">categorie.operation</field>
+        <field name="arch" type="xml">
+            <form string="Catégorie d'opération">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>                            
+                            <field name="is_partner"/>
+                            <field name="remboursement"/>
+                        </group>
+                        <group>
+                            <field name="account_id" invisible="[('is_partner', '=', True)]"/>
+                            <field name="a_justifier" />                            
+                            <field name="type_operation"/>
+                            <field name="company_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="facturation_caisse_menu_action" model="ir.actions.act_window">
+        <field name="name">Facturation</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('type','=','out_invoice')]</field>
+        <field name="help" type="html">
+            <p class="oe_view_noconten_create">
+                vide
+            </p>
+        </field>
+    </record>
+
+    <record id="account_journal_action" model="ir.actions.act_window">
+        <field name="name">Journal</field>
+        <field name="res_model">account.journal</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('type','=','cash')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p>VIDE</p>
+        </field>
+    </record>
+
+    <menuitem name="LIBENGA" 
+        web_icon="th_caisse_externe,static/description/icon.png"
+        sequence="5" id="caise_externe"/>
+
+    <menuitem
+        id="caisse_dashboard_menu"
+        name="Tableau de bord"
+        action="accout_journal_menu_action_dashoard"
+        parent="caise_externe"
+        sequence="1"/>
+
+    <menuitem
+        id="caisse_config_menu"
+        name="Configuration"
+        parent="caise_externe"
+        groups="group_caisse_superviseur,group_caisse_admin"
+        sequence="100"/>
+    
+    <menuitem
+        id="caisse_operation_menu"
+        name="Opérations"
+        parent="caise_externe"
+        sequence="5"/>
+
+    
+    <menuitem
+        id="caisse_config_caisse_menu"
+        name="Type de caisse"
+        action="accout_journal_menu_action_config"
+        parent="caisse_config_menu"
+        sequence="100"/>
+    
+    <menuitem
+        id="categorie_operation_menu_action_menu"
+        name="Catégorie d'opération"
+        action="categorie_operation_caisse_menu_action"
+        parent="caisse_config_menu"
+        sequence="100"/>
+
+    <menuitem
+        id="account_journam_menu_action_menu"
+        name="Journal"
+        action="account_journal_action"
+        parent="caisse_config_menu"
+        sequence="100"/>
+
+    <menuitem
+        id="plan_comptable_menu"
+        name="Plan comptable"
+        action="account.action_account_form"
+        parent="caisse_config_menu"
+        sequence="100"/>
+
+    <menuitem
+        id="plan_analytique_menu"
+        name="Plan analytique"
+        action="analytic.action_account_analytic_account_form"
+        parent="caisse_config_menu"
+        sequence="100"/>
+    
+    <menuitem
+        id="plan_etiquete_analytique_menu"
+        name="Etiquette analytique"
+        parent="caisse_config_menu"
+        sequence="100"
+    />
+<!--        action="analytic.account_analytic_tag_action"-->
+
+
+    <menuitem
+        id="caisse_facturation_config_menu"
+        name="Facturation"
+        parent="caisse_config_menu"
+        action="facturation_caisse_menu_action"
+        sequence="100"/>
+    
+</odoo>

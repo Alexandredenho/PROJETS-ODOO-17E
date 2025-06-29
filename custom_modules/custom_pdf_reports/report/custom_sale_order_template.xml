@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_payslip">
+            <div t-attf-class="article o_report_layout_boxed o_company_#{o.company_id.id}_layout"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <div class="pt-5">
+                    <t t-call="web.address_layout"/>
+                </div>
+                <t t-out="0"/>
+            </div>
+        </template>
+
+        <template id="custom_report_sale_order">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="custom_pdf_reports.external_layout_payslip">
+                        <div class="header">
+                            <div class="row mb-2 mt-1" style="width: 100%; justify-content: space-between;">
+
+                                <div class="col-auto text-start"
+                                     style="min-width: 150px; border: 1px solid #3b3a39;">
+                                    <t t-set="company" t-value="o.company_id"/>
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                         style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                    <div class="text-start" style="margin-left: 10px;"
+                                         t-field="o.company_id.partner_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                </div>
+                                <div class="col-auto text-start"
+                                     style="min-width: 200px; margin-left: 380px; border: 1px solid #3b3a39">
+                                    <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
+                                    <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">Client:
+                                    </div>
+                                    <img t-if="o.partner_id.image_128"
+                                         t-att-src="image_data_uri(o.partner_id.image_1920)"
+                                         style="max-height: 50px; margin-left: 5px; margin-top: 5px"/>
+                                    <div class="text-start" style="margin-left: 10px;" t-field="o.partner_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                                </div>
+                            </div>
+
+
+                            <div class="row mb-2 mt-5"
+                                 style="width: 40%; justify-content: center; border: 1px solid #3b3a39; marin-bottom: 30%; margin-left: 30%;background-color: #f5f1ed">
+                                <h3 style="text-align: center;color: #3b3a39!important">Devis de vente ( <span t-field="o.name"/>)</h3>
+                            </div>
+
+
+                            <div class="row mb-2 mt-5" style="width: 100%; justify-content: space-between;">
+                                <div class="col-auto text-start"
+                                     style="min-width: 150px; border: 1px solid #3b3a39; margin-left: 30px">
+                                    <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                        <span>
+                                            Vendeur :
+                                        </span>
+                                        <p>
+                                            <span t-field="o.user_id.name"/>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto text-start"
+                                     style="min-width: 150px; margin-left: 410px; border: 1px solid #3b3a39">
+                                    <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                        <span>
+                                            Date de la commande :
+                                        </span>
+                                        <p>
+                                            <t t-esc="o.date_order"
+                                               t-options='{"widget": "datetime", "format": "dd/MM/yyyy HH:mm:ss"}'/>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                            <table class="table table-sm table-bordered mt-3"
+                                   style="border: 1px solid black ;margin-bottom: 5px;">
+                                <thead style="display: table-row-group;background-color: #f5f1ed">
+                                    <tr>
+                                        <th class="text-center bg-light" name="th_description">
+                                            <strong>DESCRIPTION</strong>
+                                        </th>
+
+                                        <th name="th_quantity" class="text-center bg-light">
+                                            <strong>QTE</strong>
+                                        </th>
+                                        <th name="th_price_unit" class="text-center bg-light">
+                                            <strong>PRIX UNITAIRE</strong>
+                                        </th>
+                                        <th class="text-center bg-light" name="th_taxes">
+                                            <strong>TAXES</strong>
+                                        </th>
+                                        <th name="th_subtotal" class="text-end bg-light">
+                                            <strong>MONTANT</strong>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="current_subtotal" t-value="0"/>
+                                    <t t-foreach="o.order_line" t-as="line">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+
+                                        <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                            <t t-if="not line.display_type">
+                                                <td id="product">
+                                                    <span t-field="line.name"/>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <span t-field="line.product_uom_qty"/>
+                                                    <span t-field="line.product_uom.name" groups="uom.group_uom"/>
+                                                    <span t-if="line.product_packaging_id">
+                                                        (
+                                                        <span t-field="line.product_packaging_qty"
+                                                              t-options='{"widget": "integer"}'/>
+                                                        <span t-field="line.product_packaging_id"/>)
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <span t-field="line.price_unit"/>
+                                                </td>
+
+                                                <td name="td_taxes" class="text-center">
+                                                    <span t-esc="', '.join(map(lambda x: x.description or x.name, line.tax_id))"/>
+                                                </td>
+
+                                                <td class="text-end">
+                                                    <span t-field="line.price_subtotal"
+                                                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_section'">
+                                                <td colspan="99" id="section">
+                                                    <span t-field="line.name"/>
+                                                </td>
+                                                <t t-set="current_section" t-value="line"/>
+                                                <t t-set="current_subtotal" t-value="0"/>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_note'">
+                                                <td colspan="99" id="note">
+                                                    <span t-field="line.name"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                        <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                            <tr class="is-subtotal text-end">
+                                                <td colspan="99" id="subtotal">
+                                                    <strong class="mr16">Subtotal</strong>
+                                                    <span
+                                                            t-esc="current_subtotal"
+                                                            t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                                    />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <div id="total" class="row justify-content-end">
+                                <div class="col-4">
+                                    <table class="table table-sm table-bordered" style="background-color: #f5f1ed;">
+                                        <t t-set="tax_totals" t-value="o.tax_totals"/>
+                                        <t t-call="purchase.document_tax_totals"/>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                            <div style="margin-top: 20%;">
+                                <div class="row mb-2 mt-5" style="width: 100%; justify-content: space-between;">
+                                    <div class="col-auto text-start"
+                                         style="min-width: 250px;margin-left: 30px">
+                                        <div style="padding: 5px 0px; font-weight: bold;margin-left: 10px">
+                                            <h3 class="text-center" style="border: 1px solid #8fcef8">
+                                                Directeur Général
+                                            </h3>
+
+                                            <p class="text-center">
+                                                <span t-field="o.company_owner_id.name"/>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto text-start"
+                                         style="min-width: 250px; margin-left: 250px;">
+                                        <div style="padding: 5px 0px; font-weight: bold;">
+                                            <h3 class="text-center" style="border: 1px solid #8fcef8">
+                                                Responsable des ventes
+                                            </h3>
+                                            <p class="text-center">
+                                                <span t-field="o.sales_manager_id.name"/>
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_saleorder" inherit_id="sale.report_saleorder">
+            <xpath expr="." position="replace">
+                <t t-call="custom_pdf_reports.custom_report_sale_order"/>
+            </xpath>
+        </template>
+
+
+    </data>
+</odoo>

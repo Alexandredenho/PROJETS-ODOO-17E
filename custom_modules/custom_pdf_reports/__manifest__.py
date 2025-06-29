@@ -16,12 +16,13 @@
         'report/custom_report_stock_reception_template.xml',
         'report/custom_all_reports.xml',
         'report/custom_account_payment_template.xml',
+        'report/custom_sale_order_template.xml',
 
         # Views
         'views/custom_purchase_order_views.xml',
         'views/custom_stock_picking_views.xml',
         'views/custom_account_payment_views.xml',
-        # 'views/custom_res_company_views.xml',
+        'views/custom_sale_order_views.xml',
     ],
     "installable": True,
     "auto_install": False,

@@ -3,6 +3,20 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\Custom\th_caisse_externe\security\ir.model.access.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\odoo17E\addons\account_intrastat\data\account.intrastat.code.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\odoo17E\addons\base\security\ir.model.access.csv">
           <value>
             <Attribute>
@@ -11,6 +25,13 @@
           </value>
         </entry>
         <entry key="\odoo17E\addons\l10n_ae\data\template\account.account-ae.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\odoo17E\addons\l10n_at\data\template\account.account-at.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -53,6 +74,13 @@
           </value>
         </entry>
         <entry key="\odoo17E\addons\stock\security\ir.model.access.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\odoo17E\addons\test_base_import\security\ir.model.access.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

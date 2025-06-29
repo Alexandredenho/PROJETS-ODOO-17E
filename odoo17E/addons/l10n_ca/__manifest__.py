@@ -39,7 +39,7 @@ position.
     ],
     'data': [
         'data/tax_report.xml',
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'views/res_company_view.xml',
         'views/report_invoice.xml',
         'views/report_template.xml',

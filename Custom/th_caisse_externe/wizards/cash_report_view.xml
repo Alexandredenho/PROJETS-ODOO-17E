@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	
+	<record model="ir.ui.view" id="cash_report_details_form_view">
+		<field name="name">Rapport de caisse</field>
+		<field name="model">cash.report.wizard</field>
+		<field name="arch" type="xml">
+			<form string="Générer des notes">
+				<field name="caise_ids"/>
+				<footer>
+					<button name="print_report" type="object" icon="fa-print" string="Imprimer" class="oe_highlight" />
+					<button special="cancel" string="Annuler"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+
+	<record id="cash_report_detail_action" model="ir.actions.act_window">
+		<field name="name">Rapport de caisse</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">cash.report.wizard</field>
+		<field name="view_mode">form</field>
+		<field name="view_id" ref="cash_report_details_form_view"/>
+		<field name="target">new</field>
+	</record>
+
+	<menuitem 
+		id="cash_report_details_menu" 
+		parent="caise_externe" 
+		name="Rapport périodique des opération"
+		sequence="10"
+		action="cash_report_detail_action"
+	/>
+</odoo>

@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="caisse_billetage_form" model="ir.ui.view">
+        <field name="name">caisse.billetage.form</field>
+        <field name="model">caisse.billetage</field>
+        <field name="arch" type="xml">
+            <form string="Billetage">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="billetage_model_id"/>
+                            <field name="caisse_id" invisible="1"/>
+                            <field name="balance" invisible="1"/>
+                        </group>
+                    </group>
+                     <field name="billetage_ids">
+                        <tree editable="bottom">
+                            <field name="company_id" invisible="1"/>
+                            <field name="nombre"/>
+                            <field name="valeur"/>
+                            <field name="montant"/>
+                        </tree>
+                    </field>
+                    <group>
+                        <field name="montant_total" widget="monetary" readonly="1"/>
+                    </group>
+                    <footer>
+                        <button string="Confirmer" type="object" class="btn-primary" name="confirm"/>
+                        <button name="print_billetage" type="object" string="Imprimer"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

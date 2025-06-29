@@ -41,7 +41,7 @@ This code allows to generate the DTE document for Chilean invoicing.
         'views/res_config_settings_view.xml',
         'views/company_activities_view.xml',
         'views/res_company_view.xml',
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'wizard/account_move_debit_note_view.xml',
         'wizard/account_move_reversal_view.xml',
         'template/ack_template.xml',

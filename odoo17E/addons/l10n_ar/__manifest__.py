@@ -85,7 +85,7 @@ Master Data:
         'data/res.currency.csv',
         'data/res.country.csv',
         'views/account_move_view.xml',
-        'views/res_partner_view.xml',
+        'views/res_partner_views.xml',
         'views/res_company_view.xml',
         'views/res_country_view.xml',
         'views/afip_menuitem.xml',
