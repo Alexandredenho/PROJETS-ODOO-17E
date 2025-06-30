@@ -105,8 +105,15 @@
                   sequence="10"
                   parent="caisse_operation_menu"
                   id="toute_les_lignes_de_caisse"
-                  groups="th_caisse_externe.group_caisse_superviseur,th_caisse_externe.group_caisse_admin"
-                  action="account_caissei_line_extene_menu_action"/>
+                  action="account_caissei_line_extene_menu_action"
+         />
+
+         <menuitem name="Mes opérations"
+                  sequence="5"
+                  parent="caisse_operation_menu"
+                  id="mes_lignes_de_caisse"
+                  action="account_mes_extene_menu_action"
+        />
 
     </data>
 </odoo>

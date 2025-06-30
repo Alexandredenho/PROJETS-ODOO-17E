@@ -28,6 +28,18 @@ class AccountCaisseLine(models.Model):
     _rec_name = 'reference'
 
     reference = fields.Char(string="Référence", copy=False, readonly=True, default="Nouveau")
+
+    move_id = fields.Many2one(
+        'account.move',
+        string='Facture', check_company=True,
+        domain=[
+            ('move_type', 'in', ['out_invoice', 'in_invoice']),
+            ('payment_state', '!=', 'paid'),
+            ('state', '=', 'posted'),
+        ]
+    )
+
+
     date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
     libelle = fields.Char(string="Libellé", required=True)
     piece_joint = fields.Binary(string="Pièce jointe")
@@ -55,15 +67,6 @@ class AccountCaisseLine(models.Model):
         ('autre', 'Autre'),
     ])
 
-    move_id = fields.Many2one(
-        'account.move',
-        string='Facture', check_company=True,
-        # domain=[
-        #     ('type', 'in',['out_invoice','in_invoice']),
-        #     ('invoice_payment_state','!=','paid'),
-        #     ('state','=','posted'),
-        # ]
-    )
 
     def action_print_th_caisse_externe_line_report(self):
         print("self",self)
@@ -217,6 +220,7 @@ class AccountCaisseLine(models.Model):
 
     def post_account_move_payment(self):
         for rec in self:
+            print(f"Montant{rec.montant}")
             payment_vals = None
             if rec.move_id.type == 'in_invoice':
                 payment_vals = {
@@ -269,10 +273,9 @@ class AccountCaisseLine(models.Model):
                 company_currency = rec.company_id.currency_id
                 current_currency = rec.currency_id
                 is_foreign_currency = (company_currency != current_currency)
+                montant = abs(rec.montant)  # toujours positif
 
-                montant = abs(rec.montant)  # toujours positif !
-
-                # Utiliser _convert pour convertir la devise
+                # Conversion de devise si nécessaire
                 amount_value = current_currency._convert(
                     montant,
                     company_currency,
@@ -280,22 +283,23 @@ class AccountCaisseLine(models.Model):
                     rec.date or fields.Date.today()
                 )
 
-                currency_id = current_currency.id if is_foreign_currency else False
+                # Champs correctement définis
+                currency_id = current_currency.id
+
+                amount_currency = montant if is_foreign_currency else abs(rec.currency_amount)
                 lines = []
 
                 if rec.state == 'draft':
                     account_id = rec.account_id.id
-                    caisse_account_id = rec.caisse_id.account_journal_id.default_debit_account_id.id
-
+                    caisse_account_id = rec.caisse_id.account_journal_id.default_account_id.id
                     type_operation = rec.categorie_id.type_operation
 
                     if type_operation == '1':  # ENCAISSEMENT
-                        # Débit : compte d'origine
                         vals_debit = (0, 0, {
                             'account_id': account_id,
                             'partner_id': rec.partner_id.id,
                             'name': rec.libelle,
-                            'amount_currency': montant if is_foreign_currency else 0,
+                            'amount_currency': amount_currency,
                             'currency_id': currency_id,
                             'debit': amount_value,
                             'credit': 0,
@@ -303,12 +307,12 @@ class AccountCaisseLine(models.Model):
                             'caisse_line_id': rec.id,
                             'categorie_id': rec.categorie_id.id,
                         })
-                        # Crédit : caisse
+
                         vals_credit = (0, 0, {
                             'account_id': caisse_account_id,
                             'partner_id': rec.partner_id.id,
                             'name': rec.libelle,
-                            'amount_currency': -montant if is_foreign_currency else 0,
+                            'amount_currency': -amount_currency,
                             'currency_id': currency_id,
                             'debit': 0,
                             'credit': amount_value,
@@ -318,13 +322,11 @@ class AccountCaisseLine(models.Model):
                         })
 
                     else:  # DECAISSEMENT
-                        # Débit : caisse
-
                         vals_debit = (0, 0, {
                             'account_id': caisse_account_id,
                             'partner_id': rec.partner_id.id,
                             'name': rec.libelle,
-                            'amount_currency': montant if is_foreign_currency else 0,
+                            'amount_currency': amount_currency,
                             'currency_id': currency_id,
                             'debit': amount_value,
                             'credit': 0,
@@ -332,12 +334,12 @@ class AccountCaisseLine(models.Model):
                             'caisse_line_id': rec.id,
                             'categorie_id': rec.categorie_id.id,
                         })
-                        # Crédit : compte destination
+
                         vals_credit = (0, 0, {
                             'account_id': account_id,
                             'partner_id': rec.partner_id.id,
                             'name': rec.libelle,
-                            'amount_currency': -montant if is_foreign_currency else 0,
+                            'amount_currency': -amount_currency,
                             'currency_id': currency_id,
                             'debit': 0,
                             'credit': amount_value,
@@ -349,10 +351,16 @@ class AccountCaisseLine(models.Model):
                     lines.append(vals_debit)
                     lines.append(vals_credit)
 
+                    code = rec.caisse_id.account_journal_id.code or 'CSH'
+                    year = rec.date.strftime('%Y')
+                    seq_code = f'account.move.caisse.{code.lower()}'
+                    seq_number = self.env['ir.sequence'].next_by_code('account.move')
+                    ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
+
                     move_vals = {
                         'journal_id': rec.caisse_id.account_journal_id.id,
                         'date': rec.date,
-                        'ref': rec.caisse_id.reference,
+                        'name': ref,
                         'caisse_id': rec.caisse_id.id,
                         'caisse_line_id': rec.id,
                         'categorie_id': rec.categorie_id.id,
@@ -361,7 +369,11 @@ class AccountCaisseLine(models.Model):
                     }
 
                     move = self.env['account.move'].create(move_vals)
+
+
+                    # Mise à jour du solde de caisse
                     rec.caisse_id.type_id.solde_caisse = rec.caisse_id.solde_calcule
+
                     return move
 
     @api.onchange('date')

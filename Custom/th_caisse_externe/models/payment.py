@@ -41,10 +41,12 @@ class AccountMoveLine(models.Model):
         'account.caisse',
         string='caisse',check_company=True, ondelete='cascade'
         )
+
     categorie_id = fields.Many2one(
         'categorie.operation',
         string='categorie',check_company=True, ondelete='cascade'
     )
+
     caisse_line_id = fields.Many2one(
         'account.caisse.line',
         string='Ligne de caisse externe', ondelete='cascade'

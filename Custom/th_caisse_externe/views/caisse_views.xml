@@ -193,11 +193,5 @@
             </field>
         </record>
 
-        <menuitem name="Mes opérations"
-                  sequence="5"
-                  parent="caisse_operation_menu"
-                  id="mes_lignes_de_caisse"
-                  action="account_mes_extene_menu_action"/>
-
     </data>
 </odoo>

@@ -26,13 +26,13 @@
         'views/dashboard.xml',
         'views/account_move.xml',
         'views/caisse_views.xml',
+        'wizards/justifier.xml',
         'views/caisse_line_views.xml',
         'views/sortie_attente_views.xml',
         'views/accounting.xml',
         'views/payment_views.xml',
         'views/settings.xml',
         'views/res_partner_views.xml',
-
 
         # reports
         'reports/detail_report.xml',
@@ -41,7 +41,7 @@
         'reports/th_report_billetage.xml',
 
         # wizards
-        'wizards/justifier.xml',
+
         'wizards/billetage.xml',
         'wizards/cash_report_view.xml',
     ],

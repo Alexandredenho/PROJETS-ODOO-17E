@@ -149,6 +149,10 @@ class AccountCaisse(models.Model):
     _description = 'Caisse'
     _rec_name="reference"
 
+    move_line_ids = fields.One2many('account.move.line', 'caisse_id')
+    operation_ids = fields.One2many('account.caisse.line', 'caisse_id', copy=True, track_visibility='always',
+                                    string='Ajouter une opération', )
+
     reference = fields.Char(string="Référence", readonly=True, required=True, default="Nouveau")
     account_journal_id = fields.Many2one(
         'account.journal',
@@ -183,14 +187,17 @@ class AccountCaisse(models.Model):
     # )
 
     note = fields.Char(track_visibility='always', string="Commentaire")
-    operation_ids = fields.One2many('account.caisse.line', 'caisse_id', copy=True, track_visibility='always', string='Ajouter une opération',)
 
-    move_line_ids = fields.One2many('account.move.line', 'caisse_id')
+
+
     move_ids = fields.One2many('account.move', 'caisse_id')
 
     billetage_ids = fields.One2many('account.caisse.billetage.line', 'caisse_id')
 
-    account_move_total = fields.Integer(string='Total', compute="_get_accout_move_count")
+    account_move_total = fields.Integer(
+        string='Total',
+        compute="_get_accout_move_count"
+    )
 
 
     company_id = fields.Many2one(
@@ -224,6 +231,7 @@ class AccountCaisse(models.Model):
         string="Etat changé",
         default=False
     )
+
 
     @api.onchange('state')
     def onchange_state(self):
@@ -271,7 +279,6 @@ class AccountCaisse(models.Model):
     
     @api.depends('account_journal_id','type_id')
     def get_solde_initial(self):
-        # solde_initial = 0
         for rec in self:
             rec.solde_initial = rec.type_id.solde_caisse
 
