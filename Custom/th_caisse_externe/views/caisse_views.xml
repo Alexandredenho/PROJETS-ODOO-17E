@@ -68,18 +68,23 @@
                             <group>
                                 <label for="solde_initial"/>
                                 <div>
-                                    <field class="oe_inline" widget="monetary" name="solde_initial" readonly="state_change == True"/>
+                                    <field class="oe_inline" widget="monetary" name="solde_initial"
+                                           readonly="state_change == True"/>
                                     <button name="billetage_id" string="→ Count" type="object" class="oe_link oe_inline"
                                             context="{'default_balance':'start', 'default_caisse_id':active_id}"/>
                                 </div>
                                 <label for="solde_final"/>
                                 <div>
-                                    <field class="oe_inline" widget="monetary" name="solde_final" readonly="state_change == True"/>
+                                    <field class="oe_inline" widget="monetary" name="solde_final"
+                                           readonly="state_change == True"/>
                                     <button name="billetage_id" string="→ Count"
                                             type="object" class="oe_link oe_inline"
                                             context="{'default_balance':'close', 'default_caisse_id':active_id}"/>
                                 </div>
                                 <field name="currency_id" readonly="1"/>
+                                <field name="total_entree" readonly="1"/>
+                                <field name="total_sortie" readonly="1"/>
+                                <field name="solde_calcule" readonly="1"/>
                             </group>
                         </group>
 
@@ -103,6 +108,12 @@
                                         <field name="company_id" invisible="1"/>
                                         <field name="note" optional="show"/>
                                         <field name="piece_joint" optional="show"/>
+                                        <field name="state" widget="badge" optional="hide"
+                                               decoration-info="state == 'draft'"
+                                               decoration-primary="state  == 'confirmed'"
+                                               decoration-success="state == 'posted'"
+                                               decoration-danger="state == 'canceled'"
+                                        />
                                         <button name="action_print_th_caisse_externe_line_report"
                                                 type="object" class="btn btn-primary" string="IMPRIMER"/>
                                         <field name="state" invisible="1"/>
@@ -188,7 +199,12 @@
                     <field name="date_end"/>
                     <field name="user_id"/>
                     <field name="company_id"/>
-                    <field name="state"/>
+                    <field name="state" widget="badge" optional="show"
+                           decoration-info="state == 'draft'"
+                           decoration-primary="state  == 'confirmed'"
+                           decoration-success="state == 'posted'"
+                           decoration-danger="state == 'canceled'"
+                    />
                 </tree>
             </field>
         </record>

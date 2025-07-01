@@ -6,9 +6,9 @@
 			<field name="name">res.config.settings.view.form.inherit</field>
 			<field name="model">res.config.settings</field>
 			<field name="priority" eval="10"/>
-			<field name="inherit_id" ref="base.res_config_settings_view_form" />
+			<field name="inherit_id" ref="account.res_config_settings_view_form" />
 			<field name="arch" type="xml">
-				<xpath expr="//form" position="inside">
+				<xpath expr="//block[@name='fiscal_localization_setting_container']" position="before">
 					<div class="app_settings_block" data-string="th_caisse_externe" string="Caisse externe" data-key="th_caisse_externe">
 						<h2>Compte de perte et gain de change</h2>
 						<div class="row mt16 o_settings_container">
@@ -40,15 +40,15 @@
 			<field name="name">Configurations</field>
 			<field name="type">ir.actions.act_window</field>
 			<field name="res_model">res.config.settings</field>
-			<field name="view_id" ref="res_config_settings_view_form"/>
+			<field name="view_id" ref="account.res_config_settings_view_form"/>
 			<field name="view_mode">form</field>
 			<field name="target">inline</field>
-			<field name="context">{'module':'th_caisse_externe'}</field>
+			<field name="context">{'module':'account', 'bin_size': False}</field>
 		</record>
 
-		<menuitem 
-			id="menu_th_caisse_externe_settings" 
-			parent="caisse_config_menu" 
+		<menuitem
+			id="menu_th_caisse_externe_settings"
+			parent="caisse_config_menu"
 			name="Configurations"
 			sequence="10"
 			action="th_caisse_externe_config_settings_action"

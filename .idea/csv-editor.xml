@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\odoo17E\addons\account\security\ir.model.access.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\odoo17E\addons\account_intrastat\data\account.intrastat.code.csv">
           <value>
             <Attribute>
@@ -18,6 +25,13 @@
           </value>
         </entry>
         <entry key="\odoo17E\addons\base\security\ir.model.access.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\odoo17E\addons\hr_timesheet\security\ir.model.access.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

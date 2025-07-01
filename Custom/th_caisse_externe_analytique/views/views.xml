@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="account_caisse_line_form" model="ir.ui.view">
+        <field name="name">account.caisse.line.form</field>
+        <field name="model">account.caisse.line</field>
+        <field name="inherit_id" ref="th_caisse_externe.account_caisse_line_form" />
+        <field name="arch" type="xml">
+            <field name="categorie_id" position="after">
+                <field name="analitic_account_id" attrs="{'readonly': [('a_justifier', '=', True)]}" />
+                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="account_caisse_line_tree" model="ir.ui.view">
+        <field name="name">account.caisse.line.tree</field>
+        <field name="model">account.caisse.line</field>
+        <field name="inherit_id" ref="th_caisse_externe.account_caisse_line_tree" />
+        <field name="arch" type="xml">
+            <field name="categorie_id" position="after">
+                <field name="analitic_account_id" attrs="{'readonly': [('a_justifier', '=', True)]}" />
+                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="inherit_account_caisse_form" model="ir.ui.view">
+        <field name="name">account.caisse.form</field>
+        <field name="model">account.caisse</field>
+        <field name="inherit_id" ref="th_caisse_externe.account_caisse_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='operation_ids']/tree/field[@name='categorie_id']" position="after">
+                <field name="compte_analytique" invisible="1"/>
+                <field name="analitic_account_id" attrs="{'readonly': [('compte_analytique', '=', False)]}" />
+                <field name="analytique_tag_ids" attrs="{'readonly': [('compte_analytique', '=', False)]}"  widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//field[@name='move_line_ids']/tree/field[@name='name']" position="after">
+                <field name="analytic_account_id"/>
+                <field name="analytic_tag_ids" widget="many2many_tags"/>
+            </xpath>
+            <xpath expr="//field[@name='operation_ids']/form//field[@name='montant']" position="after">
+                <field name="analitic_account_id"/>
+                <field name="analytique_tag_ids" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="caisse_attente_line_wizard_form" model="ir.ui.view">
+        <field name="name">caisse.attente.line.wizard.form</field>
+        <field name="model">caisse.attente.line.wizard</field>
+        <field name="inherit_id" ref="th_caisse_externe.caisse_attente_line_wizard_form" />
+        <field name="arch" type="xml">
+            <field name="categorie_id" position="after">
+                <field name="analitic_account_id" attrs="{'invisible': [('est_remboursement', '=', True)]}" />
+                <field name="analytique_tag_ids" attrs="{'invisible': [('est_remboursement', '=', True)]}"  widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="categorie_operation_form" model="ir.ui.view">
+        <field name="name">categorie.operation.form</field>
+        <field name="model">categorie.operation</field>
+        <field name="inherit_id" ref="th_caisse_externe.categorie_operation_form" />
+        <field name="arch" type="xml">
+            <field name="type_operation" position="after">
+                 <field name="compte_analytique"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="account_analytic_line_form" model="ir.ui.view">
+        <field name="name">account.analytic.line.form</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_line_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_id']" position="after">
+                <field name="caisse_id"/>
+                <field name="caisse_line_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_analytic_line_tree" model="ir.ui.view">
+        <field name="name">account.analytic.line.tree</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_line_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_id']" position="after">
+                <field name="caisse_id"/>
+                <field name="caisse_line_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

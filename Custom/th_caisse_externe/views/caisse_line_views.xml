@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-         <record id="account_caisse_line_view_form" model="ir.ui.view">
+        <record id="account_caisse_line_view_form" model="ir.ui.view">
             <field name="name">Opérations de caisse</field>
             <field name="model">account.caisse.line</field>
             <field name="arch" type="xml">
@@ -66,7 +66,12 @@
                     <field name="company_id" optional="show"/>
                     <field name="note" optional="show"/>
                     <field name="piece_joint" optional="show"/>
-                    <field name="state" optional="show"/>
+                    <field name="state" widget="badge" optional="show"
+                           decoration-info="state == 'draft'"
+                           decoration-primary="state  == 'confirmed'"
+                           decoration-success="state == 'posted'"
+                           decoration-danger="state == 'canceled'"
+                    />
                     <field name="a_justifier" invisible="0"/>
                     <button name="action_print_th_caisse_externe_line_report" type="objet" class="btn btn-primary"
                             string="IMPRIMER"/>
@@ -79,7 +84,7 @@
             <field name="name">Opérations de caisse</field>
             <field name="res_model">account.caisse.line</field>
             <field name="view_mode">tree,form,pivot,graph</field>
-            <field name="domain">[('state','in', ['confirmed','posted'])]</field>
+            <field name="domain">[]</field>
             <field name="help" type="html">
                 <p class="oe_view_noconten_create">
                     vide
@@ -88,31 +93,32 @@
         </record>
 
 
-        <record id="account_mes_extene_menu_action" model="ir.actions.act_window">
+
+        <record id="account_mes_extene_menu_actions" model="ir.actions.act_window">
             <field name="name">Mes opérations</field>
             <field name="res_model">account.caisse.line</field>
             <field name="view_mode">tree,form,pivot,graph</field>
-            <field name="domain">[('state','in', ['confirmed','posted']),('user_id','=', uid)]</field>
+            <field name="domain">[('state','in', ('confirmed','posted')),('user_id','=',uid)]</field>
             <field name="help" type="html">
                 <p class="oe_view_noconten_create">
-                    vide
+                    Aucune opération trouvée.
                 </p>
             </field>
         </record>
 
 
-         <menuitem name="Toutes les opération"
+        <menuitem name="Toutes les opération"
                   sequence="10"
                   parent="caisse_operation_menu"
                   id="toute_les_lignes_de_caisse"
                   action="account_caissei_line_extene_menu_action"
-         />
+        />
 
-         <menuitem name="Mes opérations"
+        <menuitem name="Mes opérations"
                   sequence="5"
                   parent="caisse_operation_menu"
                   id="mes_lignes_de_caisse"
-                  action="account_mes_extene_menu_action"
+                  action="account_mes_extene_menu_actions"
         />
 
     </data>

@@ -2,6 +2,7 @@ from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from datetime import datetime
 import logging
+import re
 _logger = logging.getLogger(__name__)
 
 from odoo import api, SUPERUSER_ID
@@ -309,24 +310,72 @@ class AccountCaisse(models.Model):
             'type':'ir.actions.act_window',
         }
         
+    # @api.model
+    # def create(self, values):
+    #     type_caisse  =  self.env['type.caisse'].browse(int(values['type_id']))
+    #     sequence = self.env['ir.sequence'].next_by_code('account.caisse')
+    #     date_start = datetime.strptime( values['date_start'], '%Y-%m-%d %H:%M:%S')
+    #     dante_end = datetime.strptime( values['date_end'], '%Y-%m-%d %H:%M:%S')
+    #     ref = '{} N° {} DU {} AU {}'.format(type_caisse.name,sequence, date_start.strftime('%d/%m/%y %H:%M:%S'), dante_end.strftime('%d/%m/%y %H:%M:%S'))
+    #     values['reference'] = ref
+    #     result = super().create(values)
+    #     caisses = self.env['account.caisse'].search([
+    #         ('date_start','>=', values['date_start']),
+    #         ('date_end','<=', values['date_end']),
+    #         ('type_id','=', values['type_id'])
+    #     ])
+    #     # if len(caisses)>1:
+    #     #     raise UserError(_('Vous ne pouvez pas créer une caisse à cette date. Une autre caisse existe déjà sur cette date'))
+    #     return result
+
     @api.model
     def create(self, values):
-        type_caisse  =  self.env['type.caisse'].browse(int(values['type_id']))
-        sequence = self.env['ir.sequence'].next_by_code('account.caisse')
-        date_start = datetime.strptime( values['date_start'], '%Y-%m-%d %H:%M:%S')
-        dante_end = datetime.strptime( values['date_end'], '%Y-%m-%d %H:%M:%S')
-        ref = '{} N° {} DU {} AU {}'.format(type_caisse.name,sequence, date_start.strftime('%d/%m/%y %H:%M:%S'), dante_end.strftime('%d/%m/%y %H:%M:%S'))
+        type_caisse = self.env['type.caisse'].browse(int(values['type_id']))
+        company_id = values.get('company_id') or self.env.company.id
+
+        # Rechercher la dernière caisse de la société courante
+        last_caisse = self.env['account.caisse'].search(
+            [('company_id', '=', company_id)],
+            order='id desc', limit=1
+        )
+
+        # Extraire le dernier numéro utilisé à partir de la référence
+        last_num = 0
+        if last_caisse and last_caisse.reference:
+            match = re.search(r'N° (\d+)', last_caisse.reference)
+            if match:
+                last_num = int(match.group(1))
+
+        next_num = str(last_num + 1).zfill(3)  # ex : 003
+
+        # Génération des dates
+        date_start = datetime.strptime(values['date_start'], '%Y-%m-%d %H:%M:%S')
+        date_end = datetime.strptime(values['date_end'], '%Y-%m-%d %H:%M:%S')
+
+        # Référence finale formatée
+        ref = '{} N° {} DU {} AU {}'.format(
+            type_caisse.name,
+            next_num,
+            date_start.strftime('%d/%m/%y %H:%M:%S'),
+            date_end.strftime('%d/%m/%y %H:%M:%S')
+        )
+
         values['reference'] = ref
+        values['company_id'] = company_id
         result = super().create(values)
+
+        # Vérification d’unicité sur la période et le type
         caisses = self.env['account.caisse'].search([
-            ('date_start','>=', values['date_start']),
-            ('date_end','<=', values['date_end']),
-            ('type_id','=', values['type_id'])
+            ('date_start', '>=', values['date_start']),
+            ('date_end', '<=', values['date_end']),
+            ('type_id', '=', values['type_id']),
+            ('company_id', '=', company_id)
         ])
-        # if len(caisses)>1:
-        #     raise UserError(_('Vous ne pouvez pas créer une caisse à cette date. Une autre caisse existe déjà sur cette date'))
+        # if len(caisses) > 1:
+        #     raise UserError(_('Une caisse existe déjà sur cette période pour cette société.'))
+
         return result
-    
+
     def unlink(self):
         for rec in self:
             if rec.state in ['confirmed','posted']:
@@ -351,12 +400,17 @@ class AccountCaisse(models.Model):
             if rec.solde_final != rec.solde_calcule:
                 raise UserError(_('Le solde final est diférrent du solde calculé ! {} - {}'.format(rec.solde_final,rec.solde_calcule)))
             for line in rec.operation_ids:
+                print("je suis ici0", line.state)
+                print("line.caise_type_id.id",rec.type_id.name)
                 line.caise_type_id = rec.type_id.id
+                print("line.state",line.state)
                 if line.state == 'draft':
-                    line.state = 'confirmed'
+                    line.sudo().write({'state': 'confirmed'})
             if rec.state == 'draft':
                 rec.state = 'confirmed'
                 rec.type_id.solde_caisse = rec.solde_final
+
+
 
     def annuler_caisse(self):
         for rec in self:

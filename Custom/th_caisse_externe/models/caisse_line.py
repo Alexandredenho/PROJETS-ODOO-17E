@@ -353,7 +353,6 @@ class AccountCaisseLine(models.Model):
 
                     code = rec.caisse_id.account_journal_id.code or 'CSH'
                     year = rec.date.strftime('%Y')
-                    seq_code = f'account.move.caisse.{code.lower()}'
                     seq_number = self.env['ir.sequence'].next_by_code('account.move')
                     ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
 
@@ -409,8 +408,10 @@ class AccountCaisseLine(models.Model):
                     raise UserError(
                         _(f'Le solde de votre compte ne vous permet pas d\'effectuer cette opération. Solde caisse {caisse.solde_calcule}'))
 
+
     def write(self, values):
         res = super().write(values)
+        #1. Vérification de la date par rapport à la période de la caisse
         if values.__contains__('date'):
             line_date = datetime.strptime(values['date'], '%Y-%m-%d %H:%M:%S')
             date_start = self.caisse_id.date_start
@@ -418,22 +419,34 @@ class AccountCaisseLine(models.Model):
             if line_date < date_start or line_date > date_end:
                 raise UserError(_('Veuillez vérifier la date svp !'))
 
+        #2. Recherche des pièces comptables liés
         move_ids = self.env['account.move'].search([('caisse_line_id', '=', self.id)])
+
         if not self.move_id:
+            # Cas où aucune écriture comptable directe n’est liée
             if self.state == "draft":
                 if move_ids:
-                    for move_id in move_ids:
-                        move_id.button_draft()
-                        move_id.unlink()
+                    for move in move_ids:
+                        if move.state == 'posted':
+                            move.button_draft()
+                        if move.state in ['draft', 'cancel']:
+                            move.unlink()
                 self.poster_operation()
         else:
+            # Une pièce comptable existe
             if move_ids:
-                for move_id in move_ids:
-                    move_id.button_draft()
-                    move_id.unlink()
+                for move in move_ids:
+                    if move.state == 'posted':
+                        move.button_draft()
+                    if move.state in ['draft', 'cancel']:
+                        move.unlink()
+
+            # On reposte uniquement si confirmé
             if self.state == "confirmed":
                 self.poster_operation()
+
         return res
+
 
     @api.model
     def create(self, vals):
