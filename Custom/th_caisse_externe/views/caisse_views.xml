@@ -56,12 +56,12 @@
                         <group>
                             <group>
                                 <field name="company_id" invisible="1"/>
-                                <field name="state_change" invisible="0"/>
-                                <field name="reference" readonly="state_change == True"/>
-                                <field name="type_id" readonly="state_change == True"/>
-                                <field name="account_journal_id" readonly="state_change == True"/>
-                                <field name="date_start" readonly="state_change == True"/>
-                                <field name="date_end" readonly="state_change == True"/>
+                                <field name="state_change" invisible="1"/>
+                                <field name="reference" readonly="state not in ('draft')"/>
+                                <field name="type_id" readonly="state not in ('draft')"/>
+                                <field name="account_journal_id" readonly="state not in ('draft')"/>
+                                <field name="date_start" readonly="state not in ('draft')"/>
+                                <field name="date_end" readonly="state not in ('draft')"/>
                             </group>
 
 
@@ -69,14 +69,14 @@
                                 <label for="solde_initial"/>
                                 <div>
                                     <field class="oe_inline" widget="monetary" name="solde_initial"
-                                           readonly="state_change == True"/>
+                                           readonly="state not in ('draft')"/>
                                     <button name="billetage_id" string="→ Count" type="object" class="oe_link oe_inline"
                                             context="{'default_balance':'start', 'default_caisse_id':active_id}"/>
                                 </div>
                                 <label for="solde_final"/>
                                 <div>
                                     <field class="oe_inline" widget="monetary" name="solde_final"
-                                           readonly="state_change == True"/>
+                                           readonly="state not in ('draft')"/>
                                     <button name="billetage_id" string="→ Count"
                                             type="object" class="oe_link oe_inline"
                                             context="{'default_balance':'close', 'default_caisse_id':active_id}"/>
@@ -92,31 +92,36 @@
                             <page name="Caisse" string="Liste des opérations">
                                 <field name="operation_ids" readonly="state_change == True">
                                     <tree>
-                                        <field name="company_id" invisible="1"/>
+                                        <field name="company_id" column_invisible="1"/>
                                         <field name="reference"/>
                                         <field name="date"/>
                                         <field name="libelle"/>
-                                        <field name="reference_origine"/>
-                                        <field name="type_partenaire"/>
-                                        <field name="partner_id"/>
-                                        <field name="categorie_id"/>
+                                        <field name="reference_origine" optional="hide"/>
+                                        <field name="type_partenaire" optional="show"/>
+                                        <field name="partner_id" optional="show"/>
+                                        <field name="categorie_id" optional="show"/>
+                                        <field name="compte_analytique" optional="hide"/>
+                                        <field name="analytic_distribution"
+                                               widget="analytic_distribution"
+                                               options="{'no_open': True}"
+                                               invisible="'compte_analytique' == False"
+                                        />
                                         <field name="account_id" optional="hide"/>
-                                        <field name="move_id" optional="show"/>
+                                        <field name="move_id" optional="hide"/>
                                         <field name="currency_id" options="{'no_create': True, 'no_create_edit':True}"/>
                                         <field name="montant"/>
-                                        <field name="beneficiaire" optional="show"/>
-                                        <field name="company_id" invisible="1"/>
-                                        <field name="note" optional="show"/>
-                                        <field name="piece_joint" optional="show"/>
+                                        <field name="beneficiaire" optional="hide"/>
+                                        <field name="note" optional="hide"/>
+                                        <field name="piece_joint" optional="hide"/>
+
+                                        <button name="action_print_th_caisse_externe_line_report"
+                                                type="object" class="btn btn-primary" string="IMPRIMER"/>
                                         <field name="state" widget="badge" optional="hide"
                                                decoration-info="state == 'draft'"
                                                decoration-primary="state  == 'confirmed'"
                                                decoration-success="state == 'posted'"
                                                decoration-danger="state == 'canceled'"
                                         />
-                                        <button name="action_print_th_caisse_externe_line_report"
-                                                type="object" class="btn btn-primary" string="IMPRIMER"/>
-                                        <field name="state" invisible="1"/>
                                         <field name="currency_amount" optional="hide"/>
                                     </tree>
                                     <form string="Ajouter une opération">
@@ -144,6 +149,13 @@
                                                 <field name="currency_id"
                                                        options="{'no_create': True, 'no_create_edit':True}"/>
                                                 <field name="montant"/>
+                                                <field name="compte_analytique" invisible="0"/>
+                                                <field name="analitic_account_id" invisible="1"/>
+                                                <field name="analytic_distribution"
+                                                       widget="analytic_distribution"
+                                                       options="{'no_open': True}"
+                                                       invisible="'compte_analytique' == False"
+                                                />
                                                 <field name="beneficiaire"/>
                                                 <field name="company_id" invisible="1"/>
                                                 <field name="note"/>

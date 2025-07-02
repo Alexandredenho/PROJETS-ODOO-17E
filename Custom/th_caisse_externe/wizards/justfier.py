@@ -196,6 +196,15 @@ class CaisseAttenteLineWizard(models.TransientModel):
     )
     est_remboursement = fields.Boolean(string="Est un rembourssent")
 
+    # les champs du module th_caisse_externe_analytique
+
+    analitic_account_id = fields.Many2one(
+        comodel_name='account.analytic.account',
+        string='Compte analytique',
+    )
+
+    # analytique_tag_ids = fields.Many2many('account.analytic.tag')
+
     @api.onchange('montant_devise','montant')
     def onchange_montant_montant_devise(self):
         for rec in self:

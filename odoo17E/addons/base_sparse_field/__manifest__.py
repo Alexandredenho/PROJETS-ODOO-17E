@@ -13,7 +13,7 @@ fields are stored in a "serialized" field in the form of a JSON mapping.
     'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/account_caisse_line_inherit_views.xml',
     ],
     'license': 'LGPL-3',
 }

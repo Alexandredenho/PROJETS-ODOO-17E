@@ -20,7 +20,7 @@ MTD-VAT API to HMRC.
         'l10n_uk', 'account_reports'
     ],
     'data': [
-        'views/views.xml',
+        'views/account_caisse_line_inherit_views.xml',
         "views/res_users_views.xml",
         'security/ir.model.access.csv',
         'security/hmrc_security.xml',

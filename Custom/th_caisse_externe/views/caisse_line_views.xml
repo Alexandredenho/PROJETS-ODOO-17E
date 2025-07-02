@@ -2,7 +2,7 @@
 <odoo>
     <data>
 
-        <record id="account_caisse_line_view_form" model="ir.ui.view">
+        <record id="account_caisse_lines_view_form" model="ir.ui.view">
             <field name="name">Opérations de caisse</field>
             <field name="model">account.caisse.line</field>
             <field name="arch" type="xml">
@@ -34,8 +34,11 @@
                                 <field name="montant_en_lettre"/>
                             </group>
                             <group>
+                                <field name="analitic_account_id"/>
                                 <field name="note"/>
-                                <field name="categorie_id"/>
+                                <field name="categorie_id" invisible="1"/>
+                                <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
+<!--                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>-->
                                 <field name="piece_joint"/>
                                 <field name="a_justifier"/>
                             </group>
@@ -57,7 +60,10 @@
                     <field name="date"/>
                     <field name="libelle"/>
                     <field name="currency_id"/>
+                    <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
                     <field name="categorie_id"/>
+                     <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
+<!--                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>-->
                     <field name="partner_id"/>
                     <field name="montant" widget="monetary"/>
                     <field name="entree"/>

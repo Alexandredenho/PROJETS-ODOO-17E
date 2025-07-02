@@ -26,7 +26,7 @@ https://github.com/DGFiP/Test-Compta-Demat
     "depends": ["account_accountant", "base_vat", "l10n_fr", "l10n_fr_fec", "account_base_import"],
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/account_caisse_line_inherit_views.xml',
     ],
     'license': 'OEEL-1',
     'assets': {

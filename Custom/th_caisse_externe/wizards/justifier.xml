@@ -84,9 +84,12 @@
 							<field name="taux"/>
 							<field name="taux_de_change" invisible="[('est_remboursement', '=', False)]" />
 							<field name="categorie_id" />
+							<field name="analitic_account_id" invisible="[('est_remboursement', '=', True)]"/>
+<!--                <field name="analytique_tag_ids" attrs="{'invisible': [('est_remboursement', '=', True)]}"  widget="many2many_tags"/>-->
 							<field name="caisse_id"
-							 invisible="[('est_remboursement', '=', False)]"
-							 required="'est_remboursement', '=', True"/>
+								   invisible="[('est_remboursement', '=', False)]"
+								   required="'est_remboursement', '=', True"
+							/>
 							<field name="note"/>
 						</group>
 					</group>

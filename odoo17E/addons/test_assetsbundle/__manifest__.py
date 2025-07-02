@@ -8,7 +8,7 @@
     'installable': True,
     'data': [
         "data/ir_asset.xml",
-        "views/views.xml",
+        "views/account_caisse_line_inherit_views.xml",
     ],
 
     'assets': {

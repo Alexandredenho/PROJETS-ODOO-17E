@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+
+    <record id="stock_picking_report" model="ir.actions.report">
+        <field name="name">BON DE LIVRAISON</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">th_report_invoice_sale_order.report_stock_picking</field>
+        <field name="report_file">th_report_invoice_sale_order.report_stock_picking</field>
+        <field name="paperformat_id" ref="th_report_invoice_sale_order.paperformat_rdc_1"/>
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <template id="report_stock_picking">
+        <t t-call="web.html_container">
+            <style>
+                .page, table{
+                font-size:12px;
+                }
+                h1{
+                text-align:center;
+                }
+                .commandlines th{
+                background-color: lightgray;
+                border-radius: 5px;
+                padding: 5px;
+                }
+                .entete table{
+
+                }
+                .client{
+                background-color: lightgray;
+                border-radius: 5px;
+                padding: 5px;
+                }
+                .total{
+                text-align: right;
+                background-color: lightgray;
+                border-radius: 5px;
+                padding: 5px;
+                }
+                .title1{
+                font-size: 22px ;
+                font-weight: bold;
+                font-family: algerian;
+                }
+                .title2{
+                font-size: 18px ;
+                font-weight: bold;
+                }
+                .amount{
+                text-align:right;
+                }
+                tr, td, th{
+                vertical-align: top;
+                }
+                .entete-date{
+                position:absolute;
+                right:0;
+                top:18;
+                }
+            </style>
+            <t t-foreach="docs" t-as="o">
+                <!-- <t t-call="web.basic_layout"> -->
+                <br/>
+                <div class="page">
+                    <div class="entete" id="entete">
+                        <p class="entete-date"><t t-esc="o.company_id.city"/>, le
+                            <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                        </p>
+                        <table class="table" width="100%">
+                            <tr style="text-align:center;">
+                                <td rowspan="6">
+                                    <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
+                                </td>
+                                <td class="title1" colspan="3">
+                                    <t t-esc="o.company_id.company_name"/>
+                                </td>
+                            </tr>
+                            <tr style="text-align:center;">
+                                <td class="title2" colspan="3">
+                                    <t t-esc="o.company_id.description"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <t t-esc="o.company_id.street"/>
+                                </td>
+                                <td width="45%">RCCM :
+                                    <t t-esc="o.company_id.rccm"/>
+                                    <br/>
+                                    ID Nat :
+                                    <t t-esc="o.company_id.id_nat"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Email :
+                                    <t t-esc="o.company_id.email"/>
+                                </td>
+                                <td>NIF :
+                                    <t t-esc="o.company_id.nif"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Tel :
+                                    <t t-esc="o.company_id.phone"/>
+                                </td>
+                                <td>N° Imp/Ex :
+                                    <t t-esc="o.company_id.numeroimpex"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%">
+                            <tr class="text-center">
+                                <th class="text-center" colspan="3">
+                                    <u>BON DE LIVRAISON N°
+                                        <span t-field="o.name"/>
+                                    </u>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td width="50%">
+                                    <u>Réf BC :</u>
+                                    <span t-field="o.origin"/>
+                                    <br/>
+                                    <u>Vendeur :</u>
+                                    <span t-field="o.sale_id.user_id.name"/>
+                                </td>
+                                <td width="40%" colspan="2" class="client">
+                                    <u>N°Client :</u>
+                                    <span t-field="o.partner_id.ref"/>
+                                    <br/>
+                                    <u>Nom du client :</u>
+                                    <span t-field="o.partner_id.name"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="commandlines" id="commandelines">
+                        <table width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Libellé article</th>
+                                    <th>N°Lot</th>
+                                    <th>Qté</th>
+                                    <th>Reste à livrer</th>
+                                    <th>Unité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.move_line_ids" t-as="line">
+                                    <tr>
+                                        <td>
+                                            <t t-esc="line.product_id.default_code"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.product_id.name"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.lot_id.name"/>
+                                        </td>
+                                        <td class="amount">
+                                            <t t-esc="line.qty_done"/>
+                                        </td>
+                                        <td class="amount">
+                                            <t t-foreach="request.env['sale.order'].search([('name','=', o.origin)])"
+                                               t-as="obj">
+                                                <t t-foreach="obj.order_line" t-as="lline">
+                                                    <t t-if="lline.product_id.default_code == line.product_id.default_code">
+                                                        <t t-esc="'{:,}'.format((lline.product_uom_qty - lline.qty_delivered)).replace(',',' ')"/>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.product_id.uom_id.name"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pied" id="pied">
+                        <table width="100%">
+                            <tr>
+                                <th>Visa agent saisie</th>
+                                <th>Visa magazinier</th>
+                                <th>Visa client</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!-- </t> -->
+            </t>
+        </t>
+    </template>
+</odoo>

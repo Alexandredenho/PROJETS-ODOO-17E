@@ -56,10 +56,12 @@ class AccountCaisseLine(models.Model):
         string='Référence d\'origine',
         check_company=True,
     )
+
     partner_id = fields.Many2one(
         'res.partner',
         string='Partenaire',
     )
+
     type_partenaire = fields.Selection([
         ('client', 'Client'),
         ('fournisseur', 'Fournisseur'),
@@ -67,53 +69,31 @@ class AccountCaisseLine(models.Model):
         ('autre', 'Autre'),
     ])
 
+    # les champs du module th_caisse_externe_analytique
 
-    def action_print_th_caisse_externe_line_report(self):
-        print("self",self)
-        return self.env.ref('th_caisse_externe.th_caisse_externe_line_report').report_action(self)
-
-    @api.onchange('move_id')
-    def onchange_move_id(self):
-        for rec in self:
-            if rec.categorie_id.type_operation == '1':
-                rec.montant = rec.move_id.amount_residual * -1
-            else:
-                rec.montant = abs(rec.move_id.amount_residual)
-            if rec.move_id:
-                rec.currency_id = rec.move_id.currency_id.id,
-                if rec.move_id.move_type == 'in_invoice':
-                    rec.account_id = rec.move_id.partner_id.property_account_payable_id.id
-                elif rec.move_id.move_type == 'out_invoice':
-                    rec.account_id = rec.move_id.partner_id.property_account_receivable_id.id
-
-    @api.onchange('categorie_id', 'partner_id')
-    def onchange_partner_id(self):
-        for rec in self:
-            type_invoice = 'out_invoice'
-            if rec.categorie_id.type_operation == '1':
-                type_invoice = 'in_invoice'
-            return {'domain': {'move_id': [
-                ('partner_id', '=', rec.partner_id.id),
-                ('state', '=', 'posted'),
-                ('invoice_payment_state', 'not in', ['paid']),
-                ('type', '=', type_invoice),
-            ]}}
-
-    account_id = fields.Many2one(
-        'account.account', check_company=True,
-        string='Compte',
+    analitic_account_id = fields.Many2one(
+        comodel_name='account.analytic.account',
+        string='Compte analytique',
+        store=True
     )
 
-    currency_id = fields.Many2one(
-        'res.currency', store=True,
-        track_visibility='always',
-        string='Devise',
+    analytic_precision = fields.Integer(
+        string="Précision analytique",
+        default=2,
+        help="Nombre de décimales utilisées pour la répartition analytique."
     )
 
-    @api.onchange('caisse_id', 'date')
-    @api.depends('caisse_id', 'date')
-    def _get_currency_id(self):
-        self.currency_id = self.caisse_id.currency_id.id
+    analytic_distribution = fields.Json(
+        string='Répartition analytique',
+        help="Permet de répartir le montant sur plusieurs comptes analytiques.",
+        default=dict
+    )
+
+    compte_analytique = fields.Boolean(
+        string="Accepter les comptes analytique",
+        related='categorie_id.compte_analytique'
+    )
+
 
     montant = fields.Float(string="Montant")
     categorie_id = fields.Many2one(
@@ -153,7 +133,10 @@ class AccountCaisseLine(models.Model):
         readonly=True,
     )
 
-    currency_amount = fields.Float(string="Montant en devise de référence", compute="get_currency_amount")
+    currency_amount = fields.Float(
+        string="Montant en devise de référence",
+        compute="get_currency_amount"
+    )
 
     state = fields.Selection([
         ('draft', 'Brouillon'),
@@ -162,11 +145,329 @@ class AccountCaisseLine(models.Model):
         ('canceled', 'Annulé'),
     ], default='draft')
 
-    # @api.onchange('montant','currency_id')
-    # @api.depends('montant','currency_id')
-    # def get_currency_amount(self):
+    account_id = fields.Many2one(
+        'account.account', check_company=True,
+        string='Compte',
+    )
+
+    currency_id = fields.Many2one(
+        'res.currency', store=True,
+        track_visibility='always',
+        string='Devise',
+    )
+
+    # def poster_operation(self):
     #     for rec in self:
-    #         rec.currency_amount = rec.currency_id.compute(rec.montant, rec.caisse_id.currency_id)
+    #         if not rec.move_id:
+    #             company_currency = rec.company_id.currency_id
+    #             current_currency = rec.currency_id
+    #             is_foreign_currency = (company_currency != current_currency)
+    #             montant = abs(rec.montant)  # toujours positif
+    #
+    #             # Conversion de devise si nécessaire
+    #             amount_value = current_currency._convert(
+    #                 montant,
+    #                 company_currency,
+    #                 rec.company_id,
+    #                 rec.date or fields.Date.today()
+    #             )
+    #
+    #             # Champs correctement définis
+    #             currency_id = current_currency.id
+    #
+    #             amount_currency = montant if is_foreign_currency else abs(rec.currency_amount)
+    #             lines = []
+    #
+    #             if rec.state == 'draft':
+    #                 account_id = rec.account_id.id
+    #                 caisse_account_id = rec.caisse_id.account_journal_id.default_account_id.id
+    #                 type_operation = rec.categorie_id.type_operation
+    #
+    #                 if type_operation == '1':  # ENCAISSEMENT
+    #                     vals_debit = (0, 0, {
+    #                         'account_id': account_id,
+    #                         'partner_id': rec.partner_id.id,
+    #                         'name': rec.libelle,
+    #                         'amount_currency': amount_currency,
+    #                         'currency_id': currency_id,
+    #                         'debit': amount_value,
+    #                         'credit': 0,
+    #                         'caisse_id': rec.caisse_id.id,
+    #                         'caisse_line_id': rec.id,
+    #                         'categorie_id': rec.categorie_id.id,
+    #                         # 'analytic_distribution': {rec.analitic_account_id.id: 1.0}  # 100% sur ce compte
+    #                     })
+    #
+    #                     vals_credit = (0, 0, {
+    #                         'account_id': caisse_account_id,
+    #                         'partner_id': rec.partner_id.id,
+    #                         'name': rec.libelle,
+    #                         'amount_currency': -amount_currency,
+    #                         'currency_id': currency_id,
+    #                         'debit': 0,
+    #                         'credit': amount_value,
+    #                         'caisse_id': rec.caisse_id.id,
+    #                         'caisse_line_id': rec.id,
+    #                         'categorie_id': rec.categorie_id.id,
+    #                     })
+    #
+    #                 else:  # DECAISSEMENT
+    #                     vals_debit = (0, 0, {
+    #                         'account_id': caisse_account_id,
+    #                         'partner_id': rec.partner_id.id,
+    #                         'name': rec.libelle,
+    #                         'amount_currency': amount_currency,
+    #                         'currency_id': currency_id,
+    #                         'debit': amount_value,
+    #                         'credit': 0,
+    #                         'caisse_id': rec.caisse_id.id,
+    #                         'caisse_line_id': rec.id,
+    #                         'categorie_id': rec.categorie_id.id,
+    #                     })
+    #
+    #                     vals_credit = (0, 0, {
+    #                         'account_id': account_id,
+    #                         'partner_id': rec.partner_id.id,
+    #                         'name': rec.libelle,
+    #                         'amount_currency': -amount_currency,
+    #                         'currency_id': currency_id,
+    #                         'debit': 0,
+    #                         'credit': amount_value,
+    #                         'caisse_id': rec.caisse_id.id,
+    #                         'caisse_line_id': rec.id,
+    #                         'categorie_id': rec.categorie_id.id,
+    #                     })
+    #
+    #                 lines.append(vals_debit)
+    #                 lines.append(vals_credit)
+    #
+    #                 code = rec.caisse_id.account_journal_id.code or 'CSH'
+    #                 year = rec.date.strftime('%Y')
+    #                 seq_number = self.env['ir.sequence'].next_by_code('account.move')
+    #                 ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
+    #
+    #                 move_vals = {
+    #                     'journal_id': rec.caisse_id.account_journal_id.id,
+    #                     'date': rec.date,
+    #                     'name': ref,
+    #                     'caisse_id': rec.caisse_id.id,
+    #                     'caisse_line_id': rec.id,
+    #                     'categorie_id': rec.categorie_id.id,
+    #                     'company_id': rec.company_id.id,
+    #                     'line_ids': lines,
+    #                 }
+    #                 print(move_vals)
+    #                 move = self.env['account.move'].create(move_vals)
+    #
+    #
+    #                 # Mise à jour du solde de caisse
+    #                 rec.caisse_id.type_id.solde_caisse = rec.caisse_id.solde_calcule
+    #
+    #                 return move
+
+    def poster_operation(self):
+        for rec in self:
+            if not rec.move_id:
+                company_currency = rec.company_id.currency_id
+                current_currency = rec.currency_id
+                is_foreign_currency = (company_currency != current_currency)
+                montant = abs(rec.montant)
+
+                amount_value = current_currency._convert(
+                    montant,
+                    company_currency,
+                    rec.company_id,
+                    rec.date or fields.Date.today()
+                )
+
+                currency_id = current_currency.id
+                amount_currency = montant if is_foreign_currency else abs(rec.currency_amount)
+                lines = []
+
+                if rec.state == 'draft':
+                    account_id = rec.account_id.id
+                    caisse_account_id = rec.caisse_id.account_journal_id.default_account_id.id
+                    type_operation = rec.categorie_id.type_operation
+
+                    if type_operation == '1':  # ENCAISSEMENT
+                        vals_debit_dict = {
+                            'account_id': account_id,
+                            'partner_id': rec.partner_id.id,
+                            'name': rec.libelle,
+                            'amount_currency': amount_currency,
+                            'currency_id': currency_id,
+                            'debit': amount_value,
+                            'credit': 0,
+                            'caisse_id': rec.caisse_id.id,
+                            'caisse_line_id': rec.id,
+                            'categorie_id': rec.categorie_id.id,
+                        }
+
+                        vals_credit_dict = {
+                            'account_id': caisse_account_id,
+                            'partner_id': rec.partner_id.id,
+                            'name': rec.libelle,
+                            'amount_currency': -amount_currency,
+                            'currency_id': currency_id,
+                            'debit': 0,
+                            'credit': amount_value,
+                            'caisse_id': rec.caisse_id.id,
+                            'caisse_line_id': rec.id,
+                            'categorie_id': rec.categorie_id.id,
+                        }
+
+                    else:  # DECAISSEMENT
+                        vals_debit_dict = {
+                            'account_id': caisse_account_id,
+                            'partner_id': rec.partner_id.id,
+                            'name': rec.libelle,
+                            'amount_currency': amount_currency,
+                            'currency_id': currency_id,
+                            'debit': amount_value,
+                            'credit': 0,
+                            'caisse_id': rec.caisse_id.id,
+                            'caisse_line_id': rec.id,
+                            'categorie_id': rec.categorie_id.id,
+                        }
+
+                        vals_credit_dict = {
+                            'account_id': account_id,
+                            'partner_id': rec.partner_id.id,
+                            'name': rec.libelle,
+                            'amount_currency': -amount_currency,
+                            'currency_id': currency_id,
+                            'debit': 0,
+                            'credit': amount_value,
+                            'caisse_id': rec.caisse_id.id,
+                            'caisse_line_id': rec.id,
+                            'categorie_id': rec.categorie_id.id,
+                        }
+
+                    if rec.compte_analytique:
+                        vals_debit_dict['analytic_distribution'] = rec.analytic_distribution
+                        vals_credit_dict['caisse_id'] = rec.caisse_id.id
+                        vals_credit_dict['caisse_line_id'] = rec.id
+
+                    vals_debit = (0, 0, vals_debit_dict)
+                    vals_credit = (0, 0, vals_credit_dict)
+
+                    lines.append(vals_debit)
+                    lines.append(vals_credit)
+
+                    code = rec.caisse_id.account_journal_id.code or 'CSH'
+                    year = rec.date.strftime('%Y%m%d%H%M%S')
+                    seq_number = self.env['ir.sequence'].next_by_code('account.move')
+                    ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
+
+                    move_vals = {
+                        'journal_id': rec.caisse_id.account_journal_id.id,
+                        'date': rec.date,
+                        'name': ref,
+                        'caisse_id': rec.caisse_id.id,
+                        'caisse_line_id': rec.id,
+                        'categorie_id': rec.categorie_id.id,
+                        'company_id': rec.company_id.id,
+                        'line_ids': lines,
+                    }
+
+                    move = self.env['account.move'].create(move_vals)
+
+                    rec.caisse_id.type_id.solde_caisse = rec.caisse_id.solde_calcule
+
+                    return move
+
+    def write(self, values):
+        res = super().write(values)
+        # 1. Vérification de la date par rapport à la période de la caisse
+        if values.__contains__('date'):
+            line_date = datetime.strptime(values['date'], '%Y-%m-%d %H:%M:%S')
+            date_start = self.caisse_id.date_start
+            date_end = self.caisse_id.date_end
+            if line_date < date_start or line_date > date_end:
+                raise UserError(_('Veuillez vérifier la date svp !'))
+
+        # 2. Recherche des pièces comptables liés
+        move_ids = self.env['account.move'].search([('caisse_line_id', '=', self.id)])
+
+        if not self.move_id:
+            # Cas où aucune écriture comptable directe n’est liée
+            if self.state == "draft":
+                if move_ids:
+                    for move in move_ids:
+                        if move.state == 'posted':
+                            move.button_draft()
+                        if move.state in ['draft', 'cancel']:
+                            move.unlink()
+                self.poster_operation()
+        else:
+            # Une pièce comptable existe
+            if move_ids:
+                for move in move_ids:
+                    if move.state == 'posted':
+                        move.button_draft()
+                    if move.state in ['draft', 'cancel']:
+                        move.unlink()
+
+            # On reposte uniquement si confirmé
+            if self.state == "confirmed":
+                self.poster_operation()
+
+        return res
+
+    @api.model
+    def create(self, vals):
+        line_date = datetime.strptime(str(vals['date']), '%Y-%m-%d %H:%M:%S')
+        caisse_id = self.env['account.caisse'].search([('id', '=', vals['caisse_id'])], limit=1)
+        date_start = caisse_id.date_start
+        date_end = caisse_id.date_end
+        caisse_name = self.env['account.caisse'].browse(int(vals['caisse_id'])).type_id.name.replace(' ', '_')
+        if line_date < date_start or line_date > date_end:
+            raise UserError(_('Veuillez vérifier la date svp !'))
+
+        vals['reference'] = self.env['ir.sequence'].next_by_code(
+            caisse_name) or 'Nouveau'
+
+        result = super(AccountCaisseLine, self).create(vals)
+        if not vals['move_id']:
+            result.poster_operation()
+        return result
+
+
+    def action_print_th_caisse_externe_line_report(self):
+        print("self",self)
+        return self.env.ref('th_caisse_externe.th_caisse_externe_line_report').report_action(self)
+
+    @api.onchange('move_id')
+    def onchange_move_id(self):
+        for rec in self:
+            if rec.categorie_id.type_operation == '1':
+                rec.montant = rec.move_id.amount_residual * -1
+            else:
+                rec.montant = abs(rec.move_id.amount_residual)
+            if rec.move_id:
+                rec.currency_id = rec.move_id.currency_id.id,
+                if rec.move_id.move_type == 'in_invoice':
+                    rec.account_id = rec.move_id.partner_id.property_account_payable_id.id
+                elif rec.move_id.move_type == 'out_invoice':
+                    rec.account_id = rec.move_id.partner_id.property_account_receivable_id.id
+
+    @api.onchange('categorie_id', 'partner_id')
+    def onchange_partner_id(self):
+        for rec in self:
+            type_invoice = 'out_invoice'
+            if rec.categorie_id.type_operation == '1':
+                type_invoice = 'in_invoice'
+            return {'domain': {'move_id': [
+                ('partner_id', '=', rec.partner_id.id),
+                ('state', '=', 'posted'),
+                ('invoice_payment_state', 'not in', ['paid']),
+                ('type', '=', type_invoice),
+            ]}}
+
+    @api.onchange('caisse_id', 'date')
+    @api.depends('caisse_id', 'date')
+    def _get_currency_id(self):
+        self.currency_id = self.caisse_id.currency_id.id
 
     @api.depends('montant', 'currency_id')
     def get_currency_amount(self):
@@ -267,114 +568,6 @@ class AccountCaisseLine(models.Model):
                 name = "{} - {}".format(rec.libelle, rec.move_id.name)
             rec.full_name = name
 
-    def poster_operation(self):
-        for rec in self:
-            if not rec.move_id:
-                company_currency = rec.company_id.currency_id
-                current_currency = rec.currency_id
-                is_foreign_currency = (company_currency != current_currency)
-                montant = abs(rec.montant)  # toujours positif
-
-                # Conversion de devise si nécessaire
-                amount_value = current_currency._convert(
-                    montant,
-                    company_currency,
-                    rec.company_id,
-                    rec.date or fields.Date.today()
-                )
-
-                # Champs correctement définis
-                currency_id = current_currency.id
-
-                amount_currency = montant if is_foreign_currency else abs(rec.currency_amount)
-                lines = []
-
-                if rec.state == 'draft':
-                    account_id = rec.account_id.id
-                    caisse_account_id = rec.caisse_id.account_journal_id.default_account_id.id
-                    type_operation = rec.categorie_id.type_operation
-
-                    if type_operation == '1':  # ENCAISSEMENT
-                        vals_debit = (0, 0, {
-                            'account_id': account_id,
-                            'partner_id': rec.partner_id.id,
-                            'name': rec.libelle,
-                            'amount_currency': amount_currency,
-                            'currency_id': currency_id,
-                            'debit': amount_value,
-                            'credit': 0,
-                            'caisse_id': rec.caisse_id.id,
-                            'caisse_line_id': rec.id,
-                            'categorie_id': rec.categorie_id.id,
-                        })
-
-                        vals_credit = (0, 0, {
-                            'account_id': caisse_account_id,
-                            'partner_id': rec.partner_id.id,
-                            'name': rec.libelle,
-                            'amount_currency': -amount_currency,
-                            'currency_id': currency_id,
-                            'debit': 0,
-                            'credit': amount_value,
-                            'caisse_id': rec.caisse_id.id,
-                            'caisse_line_id': rec.id,
-                            'categorie_id': rec.categorie_id.id,
-                        })
-
-                    else:  # DECAISSEMENT
-                        vals_debit = (0, 0, {
-                            'account_id': caisse_account_id,
-                            'partner_id': rec.partner_id.id,
-                            'name': rec.libelle,
-                            'amount_currency': amount_currency,
-                            'currency_id': currency_id,
-                            'debit': amount_value,
-                            'credit': 0,
-                            'caisse_id': rec.caisse_id.id,
-                            'caisse_line_id': rec.id,
-                            'categorie_id': rec.categorie_id.id,
-                        })
-
-                        vals_credit = (0, 0, {
-                            'account_id': account_id,
-                            'partner_id': rec.partner_id.id,
-                            'name': rec.libelle,
-                            'amount_currency': -amount_currency,
-                            'currency_id': currency_id,
-                            'debit': 0,
-                            'credit': amount_value,
-                            'caisse_id': rec.caisse_id.id,
-                            'caisse_line_id': rec.id,
-                            'categorie_id': rec.categorie_id.id,
-                        })
-
-                    lines.append(vals_debit)
-                    lines.append(vals_credit)
-
-                    code = rec.caisse_id.account_journal_id.code or 'CSH'
-                    year = rec.date.strftime('%Y')
-                    seq_number = self.env['ir.sequence'].next_by_code('account.move')
-                    ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
-
-                    move_vals = {
-                        'journal_id': rec.caisse_id.account_journal_id.id,
-                        'date': rec.date,
-                        'name': ref,
-                        'caisse_id': rec.caisse_id.id,
-                        'caisse_line_id': rec.id,
-                        'categorie_id': rec.categorie_id.id,
-                        'company_id': rec.company_id.id,
-                        'line_ids': lines,
-                    }
-
-                    move = self.env['account.move'].create(move_vals)
-
-
-                    # Mise à jour du solde de caisse
-                    rec.caisse_id.type_id.solde_caisse = rec.caisse_id.solde_calcule
-
-                    return move
-
     @api.onchange('date')
     def onchange_date(self):
         for rec in self:
@@ -408,63 +601,6 @@ class AccountCaisseLine(models.Model):
                     raise UserError(
                         _(f'Le solde de votre compte ne vous permet pas d\'effectuer cette opération. Solde caisse {caisse.solde_calcule}'))
 
-
-    def write(self, values):
-        res = super().write(values)
-        #1. Vérification de la date par rapport à la période de la caisse
-        if values.__contains__('date'):
-            line_date = datetime.strptime(values['date'], '%Y-%m-%d %H:%M:%S')
-            date_start = self.caisse_id.date_start
-            date_end = self.caisse_id.date_end
-            if line_date < date_start or line_date > date_end:
-                raise UserError(_('Veuillez vérifier la date svp !'))
-
-        #2. Recherche des pièces comptables liés
-        move_ids = self.env['account.move'].search([('caisse_line_id', '=', self.id)])
-
-        if not self.move_id:
-            # Cas où aucune écriture comptable directe n’est liée
-            if self.state == "draft":
-                if move_ids:
-                    for move in move_ids:
-                        if move.state == 'posted':
-                            move.button_draft()
-                        if move.state in ['draft', 'cancel']:
-                            move.unlink()
-                self.poster_operation()
-        else:
-            # Une pièce comptable existe
-            if move_ids:
-                for move in move_ids:
-                    if move.state == 'posted':
-                        move.button_draft()
-                    if move.state in ['draft', 'cancel']:
-                        move.unlink()
-
-            # On reposte uniquement si confirmé
-            if self.state == "confirmed":
-                self.poster_operation()
-
-        return res
-
-
-    @api.model
-    def create(self, vals):
-        line_date = datetime.strptime(str(vals['date']), '%Y-%m-%d %H:%M:%S')
-        caisse_id = self.env['account.caisse'].search([('id', '=', vals['caisse_id'])], limit=1)
-        date_start = caisse_id.date_start
-        date_end = caisse_id.date_end
-        caisse_name = self.env['account.caisse'].browse(int(vals['caisse_id'])).type_id.name.replace(' ', '_')
-        if line_date < date_start or line_date > date_end:
-            raise UserError(_('Veuillez vérifier la date svp !'))
-
-        vals['reference'] = self.env['ir.sequence'].next_by_code(
-            caisse_name) or 'Nouveau'
-
-        result = super(AccountCaisseLine, self).create(vals)
-        if not vals['move_id']:
-            result.poster_operation()
-        return result
 
     def calcul_montant_en_lettre(self):
         for rec in self:

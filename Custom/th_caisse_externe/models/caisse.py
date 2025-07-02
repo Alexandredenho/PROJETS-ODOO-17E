@@ -1,11 +1,10 @@
-from odoo import _, api, fields, models, tools
+from odoo import _, api, fields, models, tools,SUPERUSER_ID
 from odoo.exceptions import UserError
 from datetime import datetime
 import logging
 import re
 _logger = logging.getLogger(__name__)
 
-from odoo import api, SUPERUSER_ID
 
 def remove_company_id(cr, registry):
     env = api.Environment(cr, SUPERUSER_ID, {})
@@ -13,92 +12,70 @@ def remove_company_id(cr, registry):
     for sequence in sequences:
         sequence.company_id = False
 
-muz = (' ', 'Onze', 'Douze', 'Treize',
-       'Quatorze', 'Quinze', 'Seize', 'Dix-Sept', 'Dix-Huit', 'Dix-Neuf')
 
+class IrSequence(models.Model):
 
-to_19_fr = ('Zéro',  'Un',   'Deux',  'Trois', 'Quatre',   'Cinq',   'Six',
-            'Sept', 'Huit', 'Neuf', 'Dix',   'Onze', 'Douze', 'Treize',
-            'Quatorze', 'Quinze', 'Seize', 'Dix-Sept', 'Dix-Huit', 'Dix-Neuf')
-tens_fr = ('Vingt', 'Trente', 'Quarante', 'Cinquante', 'Soixante',
-           'Soixante-Dix', 'Quatre-Vingt', 'Quatre-Vingt Dix')
-denom_fr = ('',
-            'Mille',     'Million(s)',         'Milliards',       'Billions',       'Quadrillions',
-            'Quintillion',  'Sextillion',      'Septillion',    'Octillion',      'Nonillion',
-            'Décillion',    'Undecillion',     'Duodecillion',  'Tredecillion',   'Quattuordecillion',
-            'Sexdecillion', 'Septendecillion', 'Octodecillion', 'Icosillion', 'Vigintillion')
+    _inherit = 'ir.sequence'
 
+    type_cassie_id = fields.Many2one(
+        'type.caisse',
+        string='Type de caisse',
+    )
 
-class AccountPayment(models.Model):
+class AccountAnalyticLine(models.Model):
 
-    _inherit = 'account.payment'
+    _inherit = 'account.analytic.line'
 
     caisse_id = fields.Many2one(
-        'account.caisse', 
-        ondelete='cascade',        
-        string='Caisse', check_company=True
+        comodel_name='account.caisse',
+        string='Caisse', check_company=True,
     )
+
     caisse_line_id = fields.Many2one(
-        'account.caisse.line',
-        string='Ligne de caisse', ondelete='cascade',  
-        check_company=True
-    )
-    @api.onchange('journal_id')
-    def onchange_caisse_id(self):
-        return {'domain':{'caisse_id':[
-            ('account_journal_id','=',self.journal_id.id),
-            ('state','=', 'draft')
-        ]}}
-
-
-class ResPartner(models.Model):
-
-    _inherit = 'res.partner'
-    compte_salarie_id = fields.Many2one(
-        'account.account',
-        string='Compte salarié', 
-        )
-    compte_autre_id = fields.Many2one(
-        'account.account',
-        string='Autre compte',
+        comodel_name='account.caisse.line',
+        string='Ligne de caisse externe',
     )
 
 
-class DiffenceChange(models.Model):
-
-    _name = 'diffence.change'
-    _check_company_auto = True
-    _description = 'Différence de change'
-
-    ref = fields.Char(string='Référence')
-    company_id = fields.Many2one(
-        'res.company',
-        string='Société',
-        copy=True, store=True, index=True, 
-        ondelete='restrict',
-        default=lambda self: self.env.company
-    )
 
 
 class CategorieOperation(models.Model):
-
     _name = 'categorie.operation'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _check_company_auto = True
     _description = 'Catégorie d\'opération'
     
 
-    name = fields.Char(string="Nom", required=True)
+    name = fields.Char(
+        string="Nom",
+        required=True,
+        tracking=True
+    )
+
     account_id = fields.Many2one(
         'account.account',
         string='Compte',
     )
-    a_justifier = fields.Boolean(string="A justifier", required=True)
-    is_partner = fields.Boolean(string="Est un compte partenaire")
-    remboursement = fields.Boolean(string="Remboursement")
+
+    a_justifier = fields.Boolean(
+        string="A justifier",
+        required=True
+    )
+
+    is_partner = fields.Boolean(
+        string="Est un compte partenaire"
+    )
+
+    remboursement = fields.Boolean(
+        string="Remboursement"
+    )
+
     type_operation = fields.Selection([
         ('0', 'Encaissement'),
         ('1','Décaissement')
-    ], required=True)
+        ],
+        required=True
+    )
 
     company_id = fields.Many2one(
         'res.company',
@@ -106,6 +83,11 @@ class CategorieOperation(models.Model):
         copy=True, store=True, index=True, 
         ondelete='restrict',
         default=lambda self: self.env.company
+    )
+
+    # le champ du module th_caisse_externe_analytique
+    compte_analytique = fields.Boolean(
+        string="Accepter les comptes analytique"
     )
 
     @api.onchange('a_justifier')
@@ -115,34 +97,6 @@ class CategorieOperation(models.Model):
             rec.is_partner = rec.is_partner
 
 
-class AccountCaisseBilletageLine(models.Model):
-    _name = 'account.caisse.billetage.line'
-    _description = 'Linge de billetage'
-    _check_company_auto = True
-
-    nombre = fields.Float(string="Nombre de billet/pièce")
-    valeur = fields.Float(string="Valeur")
-    montant = fields.Float(string="Montant")
-    balance = fields.Selection([('start', 'Solde initial'),('close','Solde final')], required=True)
-    caisse_id = fields.Many2one(
-        'account.caisse',
-        string='Caisse',
-        check_company=True
-    )
-    company_id = fields.Many2one(
-        'res.company',
-        string='Société',
-        copy=True, store=True, index=True, 
-        ondelete='restrict',
-        default=lambda self: self.env.company
-    )
-
-    @api.onchange('nombre','valeur')
-    def onchange_nombre_valeur(self):
-        for rec in self:
-            rec.montant = rec.nombre * rec.valeur
-
-
 class AccountCaisse(models.Model):
     _name = 'account.caisse'
     _inherit = ['mail.thread','mail.activity.mixin']
@@ -150,56 +104,104 @@ class AccountCaisse(models.Model):
     _description = 'Caisse'
     _rec_name="reference"
 
-    move_line_ids = fields.One2many('account.move.line', 'caisse_id')
-    operation_ids = fields.One2many('account.caisse.line', 'caisse_id', copy=True, track_visibility='always',
-                                    string='Ajouter une opération', )
+    move_line_ids = fields.One2many(
+        comodel_name='account.move.line',
+        inverse_name='caisse_id'
+    )
 
-    reference = fields.Char(string="Référence", readonly=True, required=True, default="Nouveau")
+    operation_ids = fields.One2many(
+        comodel_name='account.caisse.line',
+        inverse_name='caisse_id',
+        copy=True,
+        track_visibility='always',
+        string='Ajouter une opération',
+    )
+
+    reference = fields.Char(
+        string="Référence",
+        readonly=True,
+        required=True,
+        default="Nouveau"
+    )
+
     account_journal_id = fields.Many2one(
         'account.journal',
-        track_visibility='always', string='Journal',
+        track_visibility='always',
+        string='Journal',
         required=True,
         related='type_id.journal_id'
     )
 
     type_id = fields.Many2one(
         'type.caisse',
-        track_visibility='always', string='Type de caisse',
-        )
-    date_start = fields.Datetime(sting="Date début", required=True) 
-    date_end = fields.Datetime(sting="Date de fin", required=True) 
-    solde_initial = fields.Float(track_visibility='always', string="Solde initial", compute="get_solde_initial", store=True)
-    solde_final = fields.Float(track_visibility='always', string="Solde final")
-    solde_calcule = fields.Float(track_visibility='always', string="Solde calculé", store=True, compute="get_total_entree_sortie")
-    currency_id = fields.Many2one(
-        'res.currency', store=True, compute="get_currency",
-        track_visibility='always', string='Devise'
+        track_visibility='always',
+        string='Type de caisse',
     )
+
+    date_start = fields.Datetime(
+        sting="Date début",
+        required=True
+    )
+
+    date_end = fields.Datetime(
+        sting="Date de fin",
+        required=True
+    )
+
+    solde_initial = fields.Float(
+        track_visibility='always',
+        string="Solde initial",
+        compute="get_solde_initial",
+        store=True
+    )
+
+    solde_final = fields.Float(
+        track_visibility='always',
+        string="Solde final"
+    )
+
+    solde_calcule = fields.Float(
+        track_visibility='always',
+        string="Solde calculé",
+        store=True,
+        compute="get_total_entree_sortie"
+    )
+
+    currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        store=True,
+        compute="get_currency",
+        track_visibility='always',
+        string='Devise'
+    )
+
     user_id = fields.Many2one(
-        'res.users',
-        track_visibility='always', string='Responsable', default=lambda self: self.env.user.id, readonly=True
-        )
+        comodel_name='res.users',
+        track_visibility='always',
+        string='Responsable',
+        default=lambda self: self.env.user.id,
+        readonly=True
+    )
 
-    # user_id = fields.Many2one(
-    #     'res.users',
-    #     string='Caissier',
-    #     default=lambda self: self.env.user.id,
-    #     readonly=True,
-    # )
+    note = fields.Char(
+        track_visibility='always',
+        string="Commentaire"
+    )
 
-    note = fields.Char(track_visibility='always', string="Commentaire")
+    move_ids = fields.One2many(
+        comodel_name='account.move',
+        inverse_name='caisse_id'
+    )
 
-
-
-    move_ids = fields.One2many('account.move', 'caisse_id')
-
-    billetage_ids = fields.One2many('account.caisse.billetage.line', 'caisse_id')
+    billetage_ids = fields.One2many(
+        comodel_name='account.caisse.billetage.line',
+        inverse_name='caisse_id'
+    )
 
     account_move_total = fields.Integer(
         string='Total',
         compute="_get_accout_move_count"
     )
-
 
     company_id = fields.Many2one(
         'res.company',
@@ -240,6 +242,7 @@ class AccountCaisse(models.Model):
         La fonction retuourne False si le statut est draft sinon True
         """
         for rec in self:
+            print("stateAAAAAAAAAAAAAAAAAAAAAAAAAAAA",rec.state)
             rec.state_change = rec.state != 'draft'
 
 
@@ -309,24 +312,7 @@ class AccountCaisse(models.Model):
             'view_mode':'tree,form',
             'type':'ir.actions.act_window',
         }
-        
-    # @api.model
-    # def create(self, values):
-    #     type_caisse  =  self.env['type.caisse'].browse(int(values['type_id']))
-    #     sequence = self.env['ir.sequence'].next_by_code('account.caisse')
-    #     date_start = datetime.strptime( values['date_start'], '%Y-%m-%d %H:%M:%S')
-    #     dante_end = datetime.strptime( values['date_end'], '%Y-%m-%d %H:%M:%S')
-    #     ref = '{} N° {} DU {} AU {}'.format(type_caisse.name,sequence, date_start.strftime('%d/%m/%y %H:%M:%S'), dante_end.strftime('%d/%m/%y %H:%M:%S'))
-    #     values['reference'] = ref
-    #     result = super().create(values)
-    #     caisses = self.env['account.caisse'].search([
-    #         ('date_start','>=', values['date_start']),
-    #         ('date_end','<=', values['date_end']),
-    #         ('type_id','=', values['type_id'])
-    #     ])
-    #     # if len(caisses)>1:
-    #     #     raise UserError(_('Vous ne pouvez pas créer une caisse à cette date. Une autre caisse existe déjà sur cette date'))
-    #     return result
+
 
     @api.model
     def create(self, values):
@@ -389,6 +375,9 @@ class AccountCaisse(models.Model):
                 for move_id in rec.move_ids:
                     move_id.action_post()
             for line in rec.operation_ids:
+                line.caise_type_id = rec.type_id.id
+                if line.state == 'confirmed':
+                    line.sudo().write({'state': 'posted'})
                 if line.move_id:
                     line.post_account_move_payment()
             rec.state = 'posted'
@@ -400,10 +389,7 @@ class AccountCaisse(models.Model):
             if rec.solde_final != rec.solde_calcule:
                 raise UserError(_('Le solde final est diférrent du solde calculé ! {} - {}'.format(rec.solde_final,rec.solde_calcule)))
             for line in rec.operation_ids:
-                print("je suis ici0", line.state)
-                print("line.caise_type_id.id",rec.type_id.name)
                 line.caise_type_id = rec.type_id.id
-                print("line.state",line.state)
                 if line.state == 'draft':
                     line.sudo().write({'state': 'confirmed'})
             if rec.state == 'draft':

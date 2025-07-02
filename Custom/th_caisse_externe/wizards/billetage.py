@@ -1,8 +1,6 @@
 from odoo import _, api, fields, models, tools 
 from odoo.exceptions import UserError, ValidationError
 
-from odoo import models, fields, api
-from odoo.exceptions import UserError
 
 class CaisseBilletage(models.TransientModel):
     _name = 'caisse.billetage'
@@ -15,15 +13,32 @@ class CaisseBilletage(models.TransientModel):
         string='Caisse',
         check_company=True
     )
+
     billetage_model_id = fields.Many2one(
-        'modele.billetage',
+        comodel_name='modele.billetage',
         string='Model de billetage',
         check_company=True
     )
-    billetage_ids = fields.One2many('caisse.billetage.line', 'billetage_id')
 
-    montant_total = fields.Float(string="Montant total", compute="_compute_montant_total", store=True)
-    balance = fields.Selection([('start', 'Solde initial'), ('close', 'Solde final')], required=True)
+    billetage_ids = fields.One2many(
+        comodel_name='caisse.billetage.line',
+        inverse_name='billetage_id',
+        string='Linge de billetage',
+    )
+
+    montant_total = fields.Float(
+        string="Montant total",
+        compute="_compute_montant_total",
+        store=True
+    )
+
+    balance = fields.Selection(
+        selection=[('start', 'Solde initial'),
+                   ('close', 'Solde final')
+                   ],
+        required=True
+    )
+
     company_id = fields.Many2one(
         'res.company',
         string='Société',

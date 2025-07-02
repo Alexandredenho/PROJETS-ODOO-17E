@@ -1,0 +1,1 @@
+from . import account_caisse_line_inherit

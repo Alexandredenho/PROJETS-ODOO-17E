@@ -20,7 +20,6 @@ denom_fr = ('',
             'Sexdecillion', 'Septendecillion', 'Octodecillion', 'Icosillion', 'Vigintillion')
 
 class SortieAttente(models.Model):
-
     _name = 'sortie.attente'
     _description = 'Sortie en attente'
     _rec_name = 'reference'
@@ -76,6 +75,7 @@ class SortieAttente(models.Model):
 	    default=lambda self: self.env.user.id,
 	    readonly=True,
 	)
+
     state = fields.Selection([
         ('draft', 'Brouillon'),
         ('confirmed','Confirmé'),

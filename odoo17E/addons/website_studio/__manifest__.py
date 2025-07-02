@@ -19,7 +19,7 @@ model. Furthermore, you can create a new website form or edit an existing one.
     ],
     'data': [
         'views/templates.xml',
-        'views/views.xml',
+        'views/account_caisse_line_inherit_views.xml',
     ],
     'auto_install': True,
     'license': 'OEEL-1',

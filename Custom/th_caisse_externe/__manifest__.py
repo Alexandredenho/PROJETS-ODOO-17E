@@ -12,7 +12,7 @@
     'category': 'Tools',
 
     'depends': [
-        'base', 'account', 'mail'
+        'base', 'account', 'mail', 'analytic',
     ],
     'data': [
         # security

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="res_company_form" model="ir.ui.view">
+        <field name="name">res.company.form</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[1]" position="after">
+                <page name="other" string="Autres informations">
+                    <group>
+                        <group>
+                            <field name="company_name"/>
+                            <field name="numeroimpex"/>
+                            <field name="description"/>
+                        </group>
+                        <group>
+                            <field name="id_nat"/>
+                            <field name="rccm"/>
+                            <field name="nif"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="res_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='property_payment_term_id']" position="after">
+                <field name="stock_location_id"/>
+                <field name="jounral_sale_id"/>
+            </xpath>
+            <xpath expr="//field[@name='property_supplier_payment_term_id']" position="after">
+                <field name="jounral_purchase_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

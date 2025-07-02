@@ -13,7 +13,7 @@ This module provides the core of the Odoo Mobile App.
         'web_enterprise',
     ],
     'data': [
-        'views/views.xml',
+        'views/account_caisse_line_inherit_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

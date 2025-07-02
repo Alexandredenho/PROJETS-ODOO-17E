@@ -9,7 +9,7 @@
     'data': [
         'data.xml',
         'ir.model.access.csv',
-        'views.xml'
+        'account_caisse_line_inherit_views.xml'
     ],
     'license': 'LGPL-3',
 }

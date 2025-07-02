@@ -10,7 +10,7 @@
         'base','th_caisse_externe','analytic'
     ],
     'data': [
-        'views/caisse_views.xml',
+        'views/account_caisse_line_inherit_views.xml',
     ],
     'auto_install': False,
     'application': False,

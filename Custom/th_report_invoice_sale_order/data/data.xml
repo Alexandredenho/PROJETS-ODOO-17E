@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="0">
+		<record id="paperformat_rdc_1" model="report.paperformat">
+			<field name="name">A5 RDC</field>
+			<field name="default" eval="True"/>
+			<field name="format">A4</field>
+			<field name="orientation">Portrait</field>
+			<field name="margin_top">5</field>
+			<field name="margin_bottom">5</field>
+			<field name="margin_left">5</field>
+			<field name="margin_right">5</field>
+			<field name="header_line" eval="False"/>
+			<field name="header_spacing">3</field>
+			<field name="dpi">85</field>
+		</record>
+
+		<record id="reference_client" model="ir.sequence">
+		   <field name="name">Référence client</field>
+		   <field name="code">res.partner</field>
+		   <field name="active">TRUE</field>
+		   <field name="prefix">4111</field>
+		   <field name="padding">5</field>
+		   <field name="number_next">1</field>
+		   <field name="number_increment">1</field>
+		</record>	
+	</data>
+</odoo>
