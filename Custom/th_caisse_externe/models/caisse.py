@@ -235,15 +235,10 @@ class AccountCaisse(models.Model):
         default=False
     )
 
+    def action_print_th_caisse_report(self):
+        print("self",self)
+        return self.env.ref('th_caisse_externe.th_caisse_externe_report').report_action(self)
 
-    @api.onchange('state')
-    def onchange_state(self):
-        """
-        La fonction retuourne False si le statut est draft sinon True
-        """
-        for rec in self:
-            print("stateAAAAAAAAAAAAAAAAAAAAAAAAAAAA",rec.state)
-            rec.state_change = rec.state != 'draft'
 
 
 

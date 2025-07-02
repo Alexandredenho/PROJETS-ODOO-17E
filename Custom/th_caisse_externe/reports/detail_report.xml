@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<record id="paperformat_rdc_a42" model="report.paperformat">
+    <record id="paperformat_rdc_a42" model="report.paperformat">
         <field name="name">A4 RDC</field>
-		<field name="default" eval="True"/>
-		<field name="format">A4</field>
-		<field name="orientation">Landscape</field>
-		<field name="margin_top">5</field>
-		<field name="margin_bottom">5</field>
-		<field name="margin_left">5</field>
-		<field name="margin_right">5</field>
-		<field name="header_line" eval="False"/>
-		<field name="header_spacing">3</field>
-		<field name="dpi">100</field>
-	</record>
-    <report
-		id = "th_caisse_externe_report"
-		model = "account.caisse"
-		string = "Relevé d'opération"
-		report_type = "qweb-pdf"
-		name = "th_caisse_externe.caisse_externe_report_view_details_report_view"
-		file = "th_caisse_externe.caisse_externe_report_view_details_report_view"
-        paperformat="paperformat_rdc_a42"
-		/>
-		<template id="caisse_externe_report_view_details_report_view">
-			<t t-call="web.html_container">
-                <style>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">5</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">3</field>
+        <field name="dpi">100</field>
+    </record>
+
+    <record id="th_caisse_externe_report" model="ir.actions.report">
+        <field name="name">Relevé d'opération</field>
+        <field name="model">account.caisse</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">th_caisse_externe.caisse_externe_report_view_details_report_view</field>
+        <field name="report_file">th_caisse_externe.caisse_externe_report_view_details_report_view</field>
+        <field name="paperformat_id" ref="th_caisse_externe.paperformat_rdc_a42"/>
+        <field name="binding_model_id" ref="model_account_caisse"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+
+    <template id="caisse_externe_report_view_details_report_view">
+        <t t-call="web.html_container">
+            <style>
 					.page, table{
 						font-size:18px;
+                        font-family:Arial;
+
 					}
 					h2{
 						text-align:center;
@@ -47,61 +54,96 @@
 					.table tr{
 						border:0.5px solid black;
 					}
-					
+
 					p{
 						text-align:right;
 					}
-					
+
 				</style>
-                <t t-foreach="docs" t-as="o">
-                   <div class="page">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.html_container">
+                    <div class="page">
                         <table width="100%">
                             <tr>
-                                <td width="20%" rowspan="2"><img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/></td>
-                                <td><t t-esc="o.company_id.name"/></td>
-                                <td width="30%" style="text-align:right;">Imprimé le,<t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
+                                <td width="20%" rowspan="2">
+                                    <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
+                                </td>
+                                <td>
+                                    <t t-esc="o.company_id.name"/>
+                                </td>
+                                <td width="30%" style="text-align:right;">Imprimé le,
+                                    <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/>
+                                </td>
                             </tr>
                             <tr style="text-align:center;">
-                                <td class="title2" colspan="3"><t t-esc="o.company_id.description" /></td>
-                            </tr>
-                            <tr>
-                                <td><t t-esc="o.company_id.street" /></td>
-                                <td width="45%">RCCM : <t t-esc="o.company_id.rccm" /><br/>
-                                    ID Nat :<t t-esc="o.company_id.vat" />
+                                <td class="title2" colspan="3">
+                                    <t t-esc="o.company_id.description"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td>Email : <t t-esc="o.company_id.email" /></td>
-                                <td>NIF : <t t-esc="o.company_id.nif" /></td>
+                                <td>
+                                    <t t-esc="o.company_id.street"/>
+                                </td>
+                                <td width="45%">RCCM :
+                                    <t t-esc="o.company_id.rccm"/>
+                                    <br/>
+                                    ID Nat :
+                                    <t t-esc="o.company_id.vat"/>
+                                </td>
                             </tr>
                             <tr>
-                                <td>Tel : <t t-esc="o.company_id.phone" /></td>
-                                <td>N° Imp/Ex : <t t-esc="o.company_id.numeroimpex" /></td>
+                                <td>Email :
+                                    <t t-esc="o.company_id.email"/>
+                                </td>
+                                <td>NIF :
+                                    <t t-esc="o.company_id.nif"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Tel :
+                                    <t t-esc="o.company_id.phone"/>
+                                </td>
+                                <td>N° Imp/Ex :
+                                    <t t-esc="o.company_id.numeroimpex"/>
+                                </td>
                             </tr>
                         </table>
                         <br/>
                         <h3>Relevé d'opération de caisse</h3>
-						
+
 
                         <table width="100%" style="border-collapse: collapse;">
                             <tr>
                                 <!-- Colonne gauche : Informations sur la caisse -->
-                                <td width="50%" style="vertical-align: top; padding-right: 10px; border-right: 1px solid #ccc;">
+                                <td width="50%"
+                                    style="vertical-align: top; padding-right: 10px; border-right: 1px solid #ccc;">
                                     <table width="100%">
                                         <!-- Référence -->
                                         <tr>
-                                            <td><strong>Référence :</strong></td>
-                                            <td><t t-esc="o.reference"/></td>
+                                            <td>
+                                                <strong>Référence :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="o.reference"/>
+                                            </td>
                                         </tr>
                                         <!-- Caissier -->
                                         <tr>
-                                            <td><strong>Caissier :</strong></td>
-                                            <td><t t-esc="o.user_id.name"/></td>
+                                            <td>
+                                                <strong>Caissier :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="o.user_id.name"/>
+                                            </td>
                                         </tr>
                                         <!-- Type de caisse -->
                                         <tr>
-                                            <td><strong>Type de caisse :</strong></td>
-                                            <td><t t-esc="o.type_id.name"/></td>
+                                            <td>
+                                                <strong>Type de caisse :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="o.type_id.name"/>
+                                            </td>
                                         </tr>
                                     </table>
                                 </td>
@@ -111,33 +153,57 @@
                                     <table width="100%">
                                         <!-- Solde initial -->
                                         <tr>
-                                            <td><strong>Solde initial :</strong></td>
-                                            <td><t t-esc="'{:,.0f}'.format(abs(round(o.solde_initial,2))).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td>
+                                                <strong>Solde initial :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="'{:,.0f}'.format(abs(round(o.solde_initial,2))).replace(',', ' ').replace('.', ',')"/>
+                                            </td>
                                         </tr>
                                         <!-- Solde final -->
                                         <tr>
-                                            <td><strong>Solde final :</strong></td>
-                                            <td><t t-esc="'{:,.0f}'.format(abs(round(o.solde_final,2))).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td>
+                                                <strong>Solde final :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="'{:,.0f}'.format(abs(round(o.solde_final,2))).replace(',', ' ').replace('.', ',')"/>
+                                            </td>
                                         </tr>
                                         <!-- Date et heure de début -->
                                         <tr>
-                                            <td><strong>Date et heure de début :</strong></td>
-                                            <td><t t-esc="o.date_start.strftime('%d/%m/%y %H:%M:%S')"/></td>
+                                            <td>
+                                                <strong>Date et heure de début :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="o.date_start.strftime('%d/%m/%y %H:%M:%S')"/>
+                                            </td>
                                         </tr>
                                         <!-- Date et heure de fin -->
                                         <tr>
-                                            <td><strong>Date et heure de fin :</strong></td>
-                                            <td><t t-esc="o.date_end.strftime('%d/%m/%y %H:%M:%S')"/></td>
+                                            <td>
+                                                <strong>Date et heure de fin :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="o.date_end.strftime('%d/%m/%y %H:%M:%S')"/>
+                                            </td>
                                         </tr>
                                         <!-- Total des entrées -->
                                         <tr>
-                                            <td><strong>Total des entrées :</strong></td>
-                                            <td><t t-esc="'{:,.0f}'.format(abs(round(o.total_entree,2))).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td>
+                                                <strong>Total des entrées :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="'{:,.0f}'.format(abs(round(o.total_entree,2))).replace(',', ' ').replace('.', ',')"/>
+                                            </td>
                                         </tr>
                                         <!-- Total des sorties -->
                                         <tr>
-                                            <td><strong>Total des sorties :</strong></td>
-                                            <td><t t-esc="'{:,.0f}'.format(abs(round(o.total_sortie,2))).replace(',', ' ').replace('.', ',')"/></td>
+                                            <td>
+                                                <strong>Total des sorties :</strong>
+                                            </td>
+                                            <td>
+                                                <t t-esc="'{:,.0f}'.format(abs(round(o.total_sortie,2))).replace(',', ' ').replace('.', ',')"/>
+                                            </td>
                                         </tr>
                                     </table>
                                 </td>
@@ -145,7 +211,8 @@
                         </table>
 
 
-                        <br/><br/>
+                        <br/>
+                        <br/>
                         <table class="table">
                             <tr>
                                 <th>Référence</th>
@@ -162,34 +229,62 @@
 
                             <t t-foreach="o.operation_ids" t-as="operation_id">
                                 <tr>
-                                    <td><t t-esc="operation_id.reference"/></td>
-                                    <td><span t-esc="operation_id.date.strftime('%d/%m/%y %H:%M:%S')"/></td>
-                                    <td><t t-esc="operation_id.full_name"/></td>
-                                    <td><t t-esc="operation_id.partner_id.name"/></td>
-                                    <td><t t-esc="'{:,.0f}'.format(round(operation_id.currency_amount,2)).replace(',', ' ').replace('.', ',') if operation_id.currency_amount > 0 else 0"/></td>
-                                    <td><t t-esc="'{:,.0f}'.format(abs(round(operation_id.currency_amount,2))).replace(',', ' ').replace('.', ',') if 0 > operation_id.currency_amount else 0"/></td>
-                                    <td><t t-esc="operation_id.beneficiaire"/></td>
-                                    <td><t t-esc="operation_id.note"/></td>
-                                    <td><t t-esc="operation_id.categorie_id.name"/></td>
-                                    <td><t t-esc="operation_id.analitic_account_id.display_name"/></td>
+                                    <td>
+                                        <t t-esc="operation_id.reference"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="operation_id.date.strftime('%d/%m/%y %H:%M:%S')"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="operation_id.full_name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="operation_id.partner_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="'{:,.0f}'.format(round(operation_id.currency_amount,2)).replace(',', ' ').replace('.', ',') if operation_id.currency_amount > 0 else 0"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="'{:,.0f}'.format(abs(round(operation_id.currency_amount,2))).replace(',', ' ').replace('.', ',') if 0 > operation_id.currency_amount else 0"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="operation_id.beneficiaire"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="operation_id.note"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="operation_id.categorie_id.name"/>
+                                    </td>
+
+                                    <td class="text-center" name="analytique" t-if="operation_id.analytic_distribution">
+                                        <t t-foreach="operation_id.get_analytic_display()" t-as="line">
+                                            <span class="text-center" t-esc="line"/>
+                                            <br/>
+                                        </t>
+                                    </td>
                                 </tr>
                             </t>
                         </table>
-				   </div>
-                   <br/><br/>
-					<div class="pied" id="pied">
-						<table width="100%" clas="table">
-							<tr>									
-								<th width="25%">Visa agent saisie</th>
-								<th width="45%">Visa superviseur</th>									
-							</tr>
-							<tr height="150">									
-								<th width="25%"></th>
-								<th width="45%"></th>
-							</tr>
-						</table>
-					</div>
-				</t>		
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="pied" id="pied">
+                        <table width="100%" clas="table">
+                            <tr>
+                                <th width="25%">Visa agent saisie</th>
+                                <th width="45%">Visa superviseur</th>
+                            </tr>
+                            <tr height="150">
+                                <th width="25%"></th>
+                                <th width="45%"></th>
+                            </tr>
+                        </table>
+                    </div>
+
+                </t>
+
             </t>
-        </template>
+        </t>
+    </template>
 </odoo>

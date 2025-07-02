@@ -93,7 +93,7 @@ class CaisseBilletage(models.TransientModel):
         return self.env.ref('th_caisse_externe.th_report_billetage').report_action(self, data=data)
 
 
-    @api.depends('billetage_ids.montant')
+    @api.depends('billetage_ids')
     def _compute_montant_total(self):
         for record in self:
             record.montant_total = sum(line.montant for line in record.billetage_ids)

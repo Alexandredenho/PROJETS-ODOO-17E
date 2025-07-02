@@ -23,6 +23,7 @@
 		file = "th_caisse_externe.caisse_externe_report_detail_view_report_view"
 		paperformat="paperformat_rdc_a6"
 		/>
+
 		<template id="caisse_externe_report_detail_view_report_view">
 			<t t-call="web.html_container">
                 <style>

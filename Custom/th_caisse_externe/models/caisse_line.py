@@ -156,114 +156,16 @@ class AccountCaisseLine(models.Model):
         string='Devise',
     )
 
-    # def poster_operation(self):
-    #     for rec in self:
-    #         if not rec.move_id:
-    #             company_currency = rec.company_id.currency_id
-    #             current_currency = rec.currency_id
-    #             is_foreign_currency = (company_currency != current_currency)
-    #             montant = abs(rec.montant)  # toujours positif
-    #
-    #             # Conversion de devise si nécessaire
-    #             amount_value = current_currency._convert(
-    #                 montant,
-    #                 company_currency,
-    #                 rec.company_id,
-    #                 rec.date or fields.Date.today()
-    #             )
-    #
-    #             # Champs correctement définis
-    #             currency_id = current_currency.id
-    #
-    #             amount_currency = montant if is_foreign_currency else abs(rec.currency_amount)
-    #             lines = []
-    #
-    #             if rec.state == 'draft':
-    #                 account_id = rec.account_id.id
-    #                 caisse_account_id = rec.caisse_id.account_journal_id.default_account_id.id
-    #                 type_operation = rec.categorie_id.type_operation
-    #
-    #                 if type_operation == '1':  # ENCAISSEMENT
-    #                     vals_debit = (0, 0, {
-    #                         'account_id': account_id,
-    #                         'partner_id': rec.partner_id.id,
-    #                         'name': rec.libelle,
-    #                         'amount_currency': amount_currency,
-    #                         'currency_id': currency_id,
-    #                         'debit': amount_value,
-    #                         'credit': 0,
-    #                         'caisse_id': rec.caisse_id.id,
-    #                         'caisse_line_id': rec.id,
-    #                         'categorie_id': rec.categorie_id.id,
-    #                         # 'analytic_distribution': {rec.analitic_account_id.id: 1.0}  # 100% sur ce compte
-    #                     })
-    #
-    #                     vals_credit = (0, 0, {
-    #                         'account_id': caisse_account_id,
-    #                         'partner_id': rec.partner_id.id,
-    #                         'name': rec.libelle,
-    #                         'amount_currency': -amount_currency,
-    #                         'currency_id': currency_id,
-    #                         'debit': 0,
-    #                         'credit': amount_value,
-    #                         'caisse_id': rec.caisse_id.id,
-    #                         'caisse_line_id': rec.id,
-    #                         'categorie_id': rec.categorie_id.id,
-    #                     })
-    #
-    #                 else:  # DECAISSEMENT
-    #                     vals_debit = (0, 0, {
-    #                         'account_id': caisse_account_id,
-    #                         'partner_id': rec.partner_id.id,
-    #                         'name': rec.libelle,
-    #                         'amount_currency': amount_currency,
-    #                         'currency_id': currency_id,
-    #                         'debit': amount_value,
-    #                         'credit': 0,
-    #                         'caisse_id': rec.caisse_id.id,
-    #                         'caisse_line_id': rec.id,
-    #                         'categorie_id': rec.categorie_id.id,
-    #                     })
-    #
-    #                     vals_credit = (0, 0, {
-    #                         'account_id': account_id,
-    #                         'partner_id': rec.partner_id.id,
-    #                         'name': rec.libelle,
-    #                         'amount_currency': -amount_currency,
-    #                         'currency_id': currency_id,
-    #                         'debit': 0,
-    #                         'credit': amount_value,
-    #                         'caisse_id': rec.caisse_id.id,
-    #                         'caisse_line_id': rec.id,
-    #                         'categorie_id': rec.categorie_id.id,
-    #                     })
-    #
-    #                 lines.append(vals_debit)
-    #                 lines.append(vals_credit)
-    #
-    #                 code = rec.caisse_id.account_journal_id.code or 'CSH'
-    #                 year = rec.date.strftime('%Y')
-    #                 seq_number = self.env['ir.sequence'].next_by_code('account.move')
-    #                 ref = f'{code}/{rec.caisse_id.type_id.name}-{year}/{seq_number}'
-    #
-    #                 move_vals = {
-    #                     'journal_id': rec.caisse_id.account_journal_id.id,
-    #                     'date': rec.date,
-    #                     'name': ref,
-    #                     'caisse_id': rec.caisse_id.id,
-    #                     'caisse_line_id': rec.id,
-    #                     'categorie_id': rec.categorie_id.id,
-    #                     'company_id': rec.company_id.id,
-    #                     'line_ids': lines,
-    #                 }
-    #                 print(move_vals)
-    #                 move = self.env['account.move'].create(move_vals)
-    #
-    #
-    #                 # Mise à jour du solde de caisse
-    #                 rec.caisse_id.type_id.solde_caisse = rec.caisse_id.solde_calcule
-    #
-    #                 return move
+    def get_analytic_display(self):
+        if self.analytic_distribution:
+            lines = []
+            for acc_id, percent in self.analytic_distribution.items():
+                acc = self.env['account.analytic.account'].browse(int(acc_id))
+                lines.append(f"{acc.name} : {round(percent, 2)} %")
+            return lines
+        elif self.analitic_account_id:
+            return [self.analitic_account_id.name]
+        return []
 
     def poster_operation(self):
         for rec in self:

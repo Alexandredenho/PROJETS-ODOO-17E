@@ -42,6 +42,12 @@
                                 invisible="state not in ('confirmed')"
                                 string="Annuler"
                         />
+
+                        <button name="action_print_th_caisse_report"
+                                type="object"
+                                string="Imprimer"
+                                invisible="1"
+                        />
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,posted"/>
                     </header>
 

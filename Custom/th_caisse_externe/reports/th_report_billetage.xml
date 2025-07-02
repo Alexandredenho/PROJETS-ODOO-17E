@@ -1,127 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<record id="paperformat_rdc_a5" model="report.paperformat">
-		<field name="name">A4 RDC</field>
-		<field name="default" eval="True"/>
-		<field name="format">A4</field>
-		<field name="orientation">Portrait</field>
-		<field name="margin_top">5</field>
-		<field name="margin_bottom">5</field>
-		<field name="margin_left">5</field>
-		<field name="margin_right">5</field>
-		<field name="header_line" eval="False"/>
-		<field name="header_spacing">3</field>
-		<field name="dpi">100</field>
-	</record>
-    <report
-		id = "th_report_billetage"
-		model = "caisse.billetage"
-		string = "Belletage"
-		report_type = "qweb-pdf"
-		name = "th_caisse_externe.th_report_billetage_view"
-		file = "th_caisse_externe.th_report_billetage_view"
-		paperformat = "paperformat_rdc_a5"
-		/>
-		<template id="th_report_billetage_view">
-			<t t-call="web.html_container">
+    <record id="paperformat_rdc_a5" model="report.paperformat">
+        <field name="name">A4 RDC</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">5</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">3</field>
+        <field name="dpi">100</field>
+    </record>
+
+    <record id="th_report_billetage" model="ir.actions.report">
+        <field name="name">Belletage</field>
+        <field name="model">caisse.billetage</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">th_caisse_externe.th_report_billetage_view</field>
+        <field name="report_file">th_caisse_externe.th_report_billetage_view</field>
+        <field name="paperformat_id" ref="th_caisse_externe.paperformat_rdc_a5"/>
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <template id="th_report_billetage_view">
+        <t t-call="web.html_container">
+            <t t-call="web.html_container">
                 <style>
-					.page, table{
-						font-size:18px;
-					}
-					h2{
-						text-align:center;
-						text-decoration: underline;
-					}
+                    .page, table{
+                    font-size:18px;
+                    font-family:Arial;
+                    }
+                    h2{
+                    text-align:center;
+                    text-decoration: underline;
+                    }
 
-					.table{
-						border-collapse:collapse;
-						border:1px solid black;
-						width: 100%;
-					}
-					.table th{
-						border:1px solid black;
-					}
-					.table td{
-						border:1px solid black;
-					}
-					.table tr{
-						border:1px solid black;
-					}
-					
-					p, .amount{
-						text-align:right;
-					}
-					
-				</style>
-				<div class="page">
-					<div class="entete">
-						<table width="100%">
-							<tr>
-								<td width="20%" rowspan="2"><img style="width: 100px;" t-attf-src="data:image/*;base64,{{company_id['logo']}}"/></td>
-								<td><t t-esc="company_id['name']"/></td>
-								<td width="30%" style="text-align:right;">Imprimé le,<t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/></td>
-							</tr>
-							<tr style="text-align:center;">
-								<td class="title2" colspan="3"><t t-esc="company_id['description']" /></td>
-							</tr>
-							<tr>
-								<td><t t-esc="company_id['street']" /></td>
-								<td width="45%">RCCM : <t t-esc="company_id['rccm']" /><br/>
-									ID Nat :<t t-esc="company_id['vat']" />
-								</td>
-							</tr>
-							<tr>
-								<td>Email : <t t-esc="company_id['email']" /></td>
-								<td>NIF : <t t-esc="company_id['nif']" /></td>
-							</tr>
-							<tr>
-								<td>Tel : <t t-esc="company_id['phone']" /></td>
-								<td>N° Imp/Ex : <t t-esc="company_id['numeroimpex']" /></td>
-							</tr>
-						</table>
-					</div>
+                    .table{
+                    border-collapse:collapse;
+                    border:1px solid black;
+                    width: 100%;
+                    }
+                    .table th{
+                    border:1px solid black;
+                    }
+                    .table td{
+                    border:1px solid black;
+                    }
+                    .table tr{
+                    border:1px solid black;
+                    }
 
-					<div>
-                        <h3>BIlletage <t t-esc="balance"/> de caisse de la date du <t t-esc="company_id['start_date']"/> au  <t t-esc="company_id['end_date']"/></h3>
-						<p>Type de caisse : <t t-esc="type_caisse"/></p>
-						<p>Caissier : <t t-esc="caissier"/></p>
+                    p, .amount{
+                    text-align:right;
+                    }
+
+                </style>
+                <div class="page">
+                    <div class="entete">
+                        <table width="100%">
+                            <tr>
+                                <td width="20%" rowspan="2">
+                                    <img style="width: 100px;" t-attf-src="data:image/*;base64,{{company_id['logo']}}"/>
+                                </td>
+                                <td>
+                                    <t t-esc="company_id['name']"/>
+                                </td>
+                                <td width="30%" style="text-align:right;">Imprimé le,
+                                    <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/>
+                                </td>
+                            </tr>
+                            <tr style="text-align:center;">
+                                <td class="title2" colspan="3">
+                                    <t t-esc="company_id['description']"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <t t-esc="company_id['street']"/>
+                                </td>
+                                <td width="45%">RCCM :
+                                    <t t-esc="company_id['rccm']"/>
+                                    <br/>
+                                    ID Nat :
+                                    <t t-esc="company_id['vat']"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Email :
+                                    <t t-esc="company_id['email']"/>
+                                </td>
+                                <td>NIF :
+                                    <t t-esc="company_id['nif']"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Tel :
+                                    <t t-esc="company_id['phone']"/>
+                                </td>
+                                <td>N° Imp/Ex :
+                                    <t t-esc="company_id['numeroimpex']"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div>
+                        <h3>BIlletage
+                            <t t-esc="balance"/>
+                            de caisse de la date du
+                            <t t-esc="company_id['start_date']"/>
+                            au
+                            <t t-esc="company_id['end_date']"/>
+                        </h3>
+                        <p>Type de caisse :
+                            <t t-esc="type_caisse"/>
+                        </p>
+                        <p>Caissier :
+                            <t t-esc="caissier"/>
+                        </p>
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Pièces/Billets</th>
                                     <th>Valeur</th>
                                     <th>Montant</th>
-                                </tr>  
+                                </tr>
                             </thead>
-                            <tbody> 
+                            <tbody>
                                 <t t-foreach="lines" t-as="line">
                                     <tr>
-                                        <td class="amount"><t t-esc="'{:,.0f}'.format(line['nombre']).replace(',', ' ').replace('.', ',')"/></td>
-                                        <td class="amount"><t t-esc="'{:,.0f}'.format(line['valeur']).replace(',', ' ').replace('.', ',')"/></td>
-                                        <td class="amount"><t t-esc="'{:,.0f}'.format(line['montant']).replace(',', ' ').replace('.', ',')"/></td>
+                                        <td class="amount">
+                                            <t t-esc="'{:,.0f}'.format(line['nombre']).replace(',', ' ').replace('.', ',')"/>
+                                        </td>
+                                        <td class="amount">
+                                            <t t-esc="'{:,.0f}'.format(line['valeur']).replace(',', ' ').replace('.', ',')"/>
+                                        </td>
+                                        <td class="amount">
+                                            <t t-esc="'{:,.0f}'.format(line['montant']).replace(',', ' ').replace('.', ',')"/>
+                                        </td>
                                     </tr>
                                 </t>
                                 <tr>
                                     <th colspan="2">Total</th>
-                                    <th class="amount"><t t-esc="'{:,.0f}'.format(montant_total).replace(',', ' ').replace('.', ',')"/></th>
+                                    <th class="amount">
+                                        <t t-esc="'{:,.0f}'.format(montant_total).replace(',', ' ').replace('.', ',')"/>
+                                    </th>
                                 </tr>
                             </tbody>
                         </table>
-						<br/><br/>
-						<div class="pied" id="pied">
-							<table width="100%" clas="table">
-								<tr>									
-									<th width="25%">Visa agent saisie</th>
-									<th width="45%">Visa superviseur</th>									
-								</tr>
-								<tr height="150">									
-									<th width="25%"></th>
-									<th width="45%"></th>
-								</tr>
-							</table>
-						</div>
-					</div>
-				</div>		
+                        <br/>
+                        <br/>
+                        <div class="pied" id="pied">
+                            <table width="100%" clas="table">
+                                <tr>
+                                    <th width="25%">Visa agent saisie</th>
+                                    <th width="45%">Visa superviseur</th>
+                                </tr>
+                                <tr height="150">
+                                    <th width="25%"></th>
+                                    <th width="45%"></th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </t>
-        </template>
+        </t>
+    </template>
 </odoo>

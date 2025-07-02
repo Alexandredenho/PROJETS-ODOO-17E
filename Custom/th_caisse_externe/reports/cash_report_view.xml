@@ -20,7 +20,6 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">th_caisse_externe.th_caisse_externe_line_report_view_report_view</field>
         <field name="report_file">th_caisse_externe.th_caisse_externe_line_report_view_report_view</field>
-        <field name="print_report_name"></field>
         <field name="paperformat_id" ref="th_caisse_externe.paperformat_rdc8"/>
         <field name="binding_model_id" eval="False"/>
         <field name="binding_type">report</field>
@@ -28,198 +27,223 @@
 
     <template id="th_caisse_externe_line_report_view_report_view">
         <t t-call="web.html_container">
-        <t t-call="web.html_container">
-            <style>
-                .page, table{
-                font-size:16px;
-                }
-                h2{
-                text-align:center;
-                text-decoration: underline;
-                }
+            <t t-call="web.html_container">
+                <style>
+                    .page, table{
+                    font-size:16px;
+                    font-family:Arial;
+                    }
+                    .entete{
+                    }
+                    h2{
+                    text-align:center;
+                    }
+                    .table{
+                    border-collapse:collapse;
+                    border:1px solid black;
+                    width: 100%;
+                    }
+                    .table th{
+                    border:1px solid black;
+                    }
+                    .table td{
+                    border:1px solid black;
+                    }
+                    .table tr{
+                    border:1px solid black;
+                    }
 
-                .table{
-                border-collapse:collapse;
-                border:1px solid black;
-                width: 100%;
-                }
-                .table th{
-                border:1px solid black;
-                }
-                .table td{
-                border:1px solid black;
-                }
-                .table tr{
-                border:1px solid black;
-                }
+                    p{
+                    text-align:right;
+                    }
+                    i{
+                    font-size:12px;
+                    }
+                </style>
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <div class="entete">
+                            <table width="100%">
+                                <tr>
+                                    <td width="20%" rowspan="2">
+                                        <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.company_id.name"/>
+                                    </td>
+                                    <td width="30%" style="text-align:right;">
+                                        <i>Imprimé le,
+                                            <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/>
+                                        </i>
+                                    </td>
+                                </tr>
 
-                p{
-                text-align:right;
-                }
-                i{
-                font-size:12px;
-                }
-            </style>
-            <t t-foreach="docs" t-as="o">
-                <div class="page">
-                    <div class="entete">
-                        <table width="100%">
-                            <tr>
-                                <td width="20%" rowspan="2">
-                                    <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
-                                </td>
-                                <td>
-                                    <t t-esc="o.company_id.name"/>
-                                </td>
-                                <td width="30%" style="text-align:right;">
-                                    <i>Imprimé le,
-                                        <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y')"/>
-                                    </i>
-                                </td>
-                            </tr>
-                            <tr style="text-align:center;">
-                                <!--								<td class="title2" colspan="3"><t t-esc="o.company_id.description" /></td>-->
-                            </tr>
-                            <tr>
-                                <td>
-                                    <t t-esc="o.company_id.street"/>
-                                </td>
-                                <!--								<td width="45%">RCCM : <t t-esc="o.company_id.rccm" /><br/>-->
-                                <!--									ID Nat :<t t-esc="o.company_id.vat" />-->
-                                <!--								</td>-->
-                            </tr>
-                            <tr>
-                                <td>Email :
-                                    <t t-esc="o.company_id.email"/>
-                                </td>
-                                <!--								<td>NIF : <t t-esc="o.company_id.nif" /></td>-->
-                            </tr>
-                            <tr>
-                                <td>Tel :
-                                    <t t-esc="o.company_id.phone"/>
-                                </td>
-                                <!--								<td>N° Imp/Ex : <t t-esc="o.company_id.numeroimpex" /></td>-->
-                            </tr>
-                        </table>
-                        <t t-set="bon_name" t-value="'BON DE SORTIE CAISSE'"/>
-                        <t t-if="o.categorie_id.type_operation == '0'">
-                            <t t-set="bon_name" t-value="'REÇU'"/>
-                        </t>
-                        <t t-elif="o.categorie_id.type_operation == '1'">
+                                <tr style="text-align:center;">
+                                    <td class="title2" colspan="3">
+                                        <t t-esc="o.company_id.description"/>
+                                    </td>
+                                </tr>
+
+                                <tr style="margin-left: 4%;">
+                                    <td>
+                                        <t t-esc="o.company_id.street"/>
+                                    </td>
+                                    <td width="45%">RCCM :
+                                        <t t-esc="o.company_id.rccm"/>
+                                        <br/>
+                                        ID Nat :
+                                        <t t-esc="o.company_id.vat"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Email :
+                                        <t t-esc="o.company_id.email"/>
+                                    </td>
+                                    <td>NIF :
+                                        <t t-esc="o.company_id.nif"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Tel :
+                                        <t t-esc="o.company_id.phone"/>
+                                    </td>
+                                    <td>N° Imp/Ex :
+                                        <t t-esc="o.company_id.numeroimpex"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+
                             <t t-set="bon_name" t-value="'BON DE SORTIE CAISSE'"/>
-                        </t>
-                        <t t-else="">
-                            <t t-set="bon_name" t-value="'REÇU'"/>
-                        </t>
+                            <t t-if="o.categorie_id.type_operation == '0'">
+                                <t t-set="bon_name" t-value="'REÇU'"/>
+                            </t>
+                            <t t-elif="o.categorie_id.type_operation == '1'">
+                                <t t-set="bon_name" t-value="'BON DE SORTIE CAISSE'"/>
+                            </t>
+                            <t t-else="">
+                                <t t-set="bon_name" t-value="'REÇU'"/>
+                            </t>
 
-                        <h2>
-                            <t t-esc="bon_name"/>
-                            N°
-                            <t t-esc="o.reference"/>
-                        </h2>
-                        <p>Date d'opération :
-                            <t t-esc="o.date.strftime('%d/%m/%Y')"/>
-                        </p>
-                    </div>
-                    <div>
-                        <table width="100%">
-                            <tr>
-                                <td width="30%">Libellé d'opération</td>
-                                <td>:
-                                    <t t-esc="o.full_name"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Montant</td>
-                                <td>:
-                                    <t t-esc="'{:,.0f}'.format(abs(o.montant)).replace(',', ' ').replace('.', ',')"/>
-                                    <t t-esc="o.caisse_id.type_id.currency_id.name"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Montant en toutes lettres</td>
-                                <td>:
-                                    <t t-esc="o.montant_en_lettre"/>
-                                    <t t-esc="o.caisse_id.type_id.currency_id.name"/>
-                                </td>
-                            </tr>
-                            <tr t-if="o.note">
-                                <td>Commentaire</td>
-                                <td>:
-                                    <t t-esc="o.note"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <br/>
-                    <div>
-                        <table width="100%" class="table">
-                            <tr>
-                                <th>Caisse</th>
-                                <th>Designation</th>
-                                <th>Tiers</th>
-                                <th>Analytique</th>
-                                <th>Montant</th>
-                                <th>Devise</th>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <t t-esc="o.caisse_id.type_id.name"/>
-                                </td>
-                                <td>
-                                    <t t-esc="o.libelle"/>
-                                </td>
-                                <td>
-                                    <t t-esc="o.partner_id.name"/>
-                                </td>
-                                <td name="analytique">
-                                    <!--									<t t-esc="o.analitic_account_id.display_name"/>-->
-                                </td>
-                                <td>
-                                    <t t-esc="'{:,.0f}'.format(abs(o.currency_amount)).replace(',', ' ').replace('.', ',')"/>
-                                </td>
-                                <td>
-                                    <t t-esc="o.caisse_id.type_id.currency_id.symbol"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <br/>
-                    <div class="pied" id="pied">
-                        <table width="100%">
-                            <tr>
-                                <th width="25%">Visa agent saisie</th>
-                                <th>Approbation</th>
-                                <th width="45%">Visa de la direction</th>
-                                <t t-if="o.categorie_id.type_operation == '1'">
-                                    <th width="25%">Bénéficiaire</th>
-                                </t>
-                                <t t-else="">
-                                    <th width="25%">Tier</th>
-                                </t>
-                            </tr>
-                            <tr height="150">
-                                <th width="25%">
-                                    <t t-esc="o.caisse_id.user_id.name"/>
-                                </th>
-                                <th width="25%"></th>
-                                <th width="45%"></th>
-                                <t t-if="o.categorie_id.type_operation == '1'">
-                                    <th width="25%">
-                                        <t t-esc="o.beneficiaire"/>
-                                    </th>
-                                </t>
-                                <t t-else="">
-                                    <th width="25%">
+                            <div class="row mb-5 mt-5"
+                                 style="width: 40%; justify-content: center; border: 1px solid #3b3a39; margin-top:3%; margin-left: 30%;">
+                                <h2>
+                                    <t t-esc="bon_name"/>
+                                    N°
+                                    <t t-esc="o.reference"/>
+                                </h2>
+                            </div>
+
+
+                            <p>Date d'opération :
+                                <t t-esc="o.date.strftime('%d/%m/%Y')"/>
+                            </p>
+                        </div>
+                        <div>
+                            <table width="100%">
+                                <tr>
+                                    <td width="30%">Libellé d'opération</td>
+                                    <td>:
+                                        <t t-esc="o.full_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Montant</td>
+                                    <td>:
+                                        <t t-esc="'{:,.0f}'.format(abs(o.montant)).replace(',', ' ').replace('.', ',')"/>
+                                        <t t-esc="o.caisse_id.type_id.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Montant en toutes lettres</td>
+                                    <td>:
+                                        <t t-esc="o.montant_en_lettre"/>
+                                        <t t-esc="o.caisse_id.type_id.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.note">
+                                    <td>Commentaire</td>
+                                    <td>:
+                                        <t t-esc="o.note"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <br/>
+                        <div>
+                            <table width="100%" class="table">
+                                <tr>
+                                    <th>Caisse</th>
+                                    <th>Designation</th>
+                                    <th>Tiers</th>
+                                    <th t-if="o.analytic_distribution">Analytique</th>
+                                    <th>Montant</th>
+                                    <th>Devise</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <t t-esc="o.caisse_id.type_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.libelle"/>
+                                    </td>
+                                    <td>
                                         <t t-esc="o.partner_id.name"/>
+                                    </td>
+
+                                    <td class="text-center" name="analytique" t-if="o.analytic_distribution">
+                                        <t t-foreach="o.get_analytic_display()" t-as="line">
+                                            <span class="text-center" t-esc="line"/>
+                                            <br/>
+                                        </t>
+                                    </td>
+
+                                    <td>
+                                        <t t-esc="'{:,.0f}'.format(abs(o.currency_amount)).replace(',', ' ').replace('.', ',')"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.caisse_id.type_id.currency_id.symbol"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <br/>
+                        <div class="pied" id="pied">
+                            <table width="100%">
+                                <tr>
+                                    <th width="25%">Visa agent saisie</th>
+                                    <th>Approbation</th>
+                                    <th width="45%">Visa de la direction</th>
+                                    <t t-if="o.categorie_id.type_operation == '1'">
+                                        <th width="25%">Bénéficiaire</th>
+                                    </t>
+                                    <t t-else="">
+                                        <th width="25%">Tier</th>
+                                    </t>
+                                </tr>
+                                <tr height="150">
+                                    <th width="25%">
+                                        <t t-esc="o.caisse_id.user_id.name"/>
                                     </th>
-                                </t>
-                            </tr>
-                        </table>
+                                    <th width="25%"></th>
+                                    <th width="45%"></th>
+                                    <t t-if="o.categorie_id.type_operation == '1'">
+                                        <th width="25%">
+                                            <t t-esc="o.beneficiaire"/>
+                                        </th>
+                                    </t>
+                                    <t t-else="">
+                                        <th width="25%">
+                                            <t t-esc="o.partner_id.name"/>
+                                        </th>
+                                    </t>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                </t>
             </t>
-        </t>
         </t>
     </template>
 </odoo>
