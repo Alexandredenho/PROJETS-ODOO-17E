@@ -17,6 +17,7 @@ class AccountPayment(models.Model):
         string='Ligne de caisse', ondelete='cascade',
         check_company=True
     )
+
     @api.onchange('journal_id')
     def onchange_caisse_id(self):
         return {'domain':{'caisse_id':[
@@ -30,14 +31,17 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     caisse_id = fields.Many2one(
-        'account.caisse',
+        comodel_name='account.caisse',
         string='caisse',
-        check_company=True,ondelete='cascade'
+        check_company=True,
+        ondelete='cascade'
     )
 
     categorie_id = fields.Many2one(
-        'categorie.operation',
-        string='categorie', check_company=True, ondelete='cascade'
+        comodel_name='categorie.operation',
+        string='categorie',
+        check_company=True,
+        ondelete='cascade'
     )
 
     caisse_line_id = fields.Many2one(
@@ -69,6 +73,7 @@ class AccountMoveLine(models.Model):
 class ResPartner(models.Model):
 
     _inherit = 'res.partner'
+
     compte_salarie_id = fields.Many2one(
         'account.account',
         string='Compte salarié',

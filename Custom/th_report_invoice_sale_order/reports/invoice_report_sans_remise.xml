@@ -16,37 +16,13 @@
         <template id="report_account_move_sans_remise">
             <t t-call="web.html_container">
                 <style>
-                    .page, table{
-                    font-size:12px;
-                    font-family: arial;
-                    }
-                    h1{
-                    text-align:center;
-                    }
-                    .commandlines th{
-                    background-color: lightgray;
-                    border-radius: 5px;
-                    padding: 5px;
-                    }
-                    .entete table{
-
-                    }
-                    .client{
-                    background-color: lightgray;
-                    border-radius: 5px;
-                    padding: 5px;
-                    }
                     .total{
                     text-align: right;
                     background-color: lightgray;
                     border-radius: 5px;
                     padding: 5px;
                     }
-                    .title1{
-                    font-size: 22px ;
-                    font-weight: bold;
-                    font-family: algerian;
-                    }
+
                     .title2{
                     font-size: 18px ;
                     font-weight: bold;
@@ -54,9 +30,7 @@
                     .amount{
                     text-align:right;
                     }
-                    tr, td, th{
-                    vertical-align: top;
-                    }
+
                     .entete-date{
                     position:absolute;
                     right:0;
@@ -66,17 +40,17 @@
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.html_container">
                         <br/>
-                        <div class="page">
+                        <div class="page" style="font-family: arial;font-size:12px;">
                             <div class="entete" id="entete">
                                 <p class="entete-date"><t t-esc="o.company_id.city"/>, le
                                     <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
                                 </p>
-                                <table class="table" width="100%">
+                                <table style="font-family: arial;font-size:12px;" width="100%">
                                     <tr style="text-align:center;">
                                         <td rowspan="6">
                                             <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
                                         </td>
-                                        <td class="title1" colspan="3">
+                                        <td style="font-size: 22px ;font-weight: bold;font-family: algerian;" colspan="3">
                                             <t t-esc="o.company_id.company_name"/>
                                         </td>
                                     </tr>
@@ -137,7 +111,7 @@
                                             <u>Vendeur :</u>
                                             <span t-field="o.invoice_user_id.name"/>
                                         </td>
-                                        <td width="40%" colspan="2" class="client">
+                                        <td width="40%" colspan="2" style="background-color: lightgray;border-radius: 5px;padding: 5px">
                                             <u>N°Client :</u>
                                             <span t-field="o.partner_id.ref"/>
                                             <br/>
@@ -147,48 +121,56 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="commandlines" id="commandelines">
+
+
+                            <table style="border: 1px solid black; border-collapse: collapse; width: 100%; margin-bottom: 15px; margin-top: 12px;"
+                                   width="100%">
                                 <t t-set="remise"
                                    t-value="request.env['ir.config_parameter'].sudo().get_param('group_discount_per_so_line')"/>
-                                <table width="100%">
-                                    <thead>
+                                <thead style=" background-color: lightgray;">
+                                    <tr>
+                                        <th style="border: 1px solid black;">Référence</th>
+                                        <th style="border: 1px solid black;">Libellé article</th>
+                                        <th style="border: 1px solid black;">Qté</th>
+                                        <th style="border: 1px solid black;">Unité</th>
+                                        <th style="border: 1px solid black;">P.U.</th>
+                                        <th style="border: 1px solid black;">P.TOT.</th>
+                                    </tr>
+                                </thead>
+                                <t t-set="total_remise" t-value="0"/>
+                                <tbody>
+                                    <t t-foreach="o.invoice_line_ids" t-as="line">
                                         <tr>
-                                            <th>Référence</th>
-                                            <th>Libellé article</th>
-                                            <th>Qté</th>
-                                            <th>Unité</th>
-                                            <th>P.U.</th>
-                                            <th>P.TOT.</th>
+                                            <td style="border: 1px solid black;">
+                                                <t t-esc="line.product_id.default_code"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black;">
+                                                <t t-esc="line.product_id.name"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black; text-align: center">
+                                                <t t-esc="line.quantity"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black; text-align: center">
+                                                <t t-esc="line.product_id.uom_id.name"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black;text-align: center">
+                                                <t t-esc="'{:,}'.format(float(line.price_unit)).replace(',',' ')"/>
+                                            </td>
+
+                                            <td style="border: 1px solid black; text-align: right">
+                                                <span t-esc="line.price_subtotal"
+                                                      t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <t t-set="total_remise" t-value="0"/>
-                                    <tbody>
-                                        <t t-foreach="o.invoice_line_ids" t-as="line">
-                                            <tr>
-                                                <td>
-                                                    <t t-esc="line.product_id.default_code"/>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.product_id.name"/>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.quantity"/>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.product_id.uom_id.name"/>
-                                                </td>
-                                                <td class="amount">
-                                                    <t t-esc="'{:,}'.format(float(line.price_unit)).replace(',',' ')"/>
-                                                </td>
-                                                <td class="amount">
-                                                    <span t-esc="line.price_subtotal"
-                                                          t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </t>
+                                </tbody>
+                            </table>
+
+
                             <div class="pied" id="pied">
                                 <table width="100%">
                                     <tr>

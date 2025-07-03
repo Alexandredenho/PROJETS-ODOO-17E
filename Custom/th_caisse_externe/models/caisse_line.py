@@ -27,30 +27,79 @@ class AccountCaisseLine(models.Model):
     _description = 'Opérations de caisse'
     _rec_name = 'reference'
 
-    reference = fields.Char(string="Référence", copy=False, readonly=True, default="Nouveau")
-
-    move_id = fields.Many2one(
-        'account.move',
-        string='Facture', check_company=True,
-        domain=[
-            ('move_type', 'in', ['out_invoice', 'in_invoice']),
-            ('payment_state', '!=', 'paid'),
-            ('state', '=', 'posted'),
-        ]
+    reference = fields.Char(
+        string="Référence",
+        copy=False,
+        readonly=True,
+        default="Nouveau"
     )
 
+    move_id = fields.Many2one(
+        comodel_name='account.move',
+        string='Facture',
+    )
 
-    date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
-    libelle = fields.Char(string="Libellé", required=True)
-    piece_joint = fields.Binary(string="Pièce jointe")
-    note = fields.Char(string="Commentaire")
-    a_justifier = fields.Boolean(string="A justifier", default=False)
-    montant_justifier = fields.Float(string="Montant justifier")
-    entree = fields.Float(string="Entrée", compute="get_solde")
-    sortie = fields.Float(string="Sortie", compute="get_solde")
-    solde = fields.Float(string="solde", store=True, compute="get_solde")
-    ecart_sur_montant = fields.Float(string='Ecart de justification')
-    taux = fields.Float(string='Taux de change')
+    account_invoice_ids = fields.Many2many(
+        comodel_name='account.move',
+        string='LES FACTURES',
+        check_company=True,
+        compute='_get_invoice_by_partners',
+        store=True,
+        readonly=False
+    )
+
+    date = fields.Datetime(
+        string="Date",
+        required=True,
+        default=fields.Datetime.now
+    )
+
+    libelle = fields.Char(
+        string="Libellé",
+        required=True
+    )
+
+    piece_joint = fields.Binary(
+        string="Pièce jointe"
+    )
+
+    note = fields.Char(
+        string="Commentaire"
+    )
+
+    a_justifier = fields.Boolean(
+        string="A justifier",
+        default=False
+    )
+
+    montant_justifier = fields.Float(
+        string="Montant justifier"
+    )
+
+    entree = fields.Float(
+        string="Entrée",
+        compute="get_solde"
+    )
+
+    sortie = fields.Float(
+        string="Sortie",
+        compute="get_solde"
+    )
+
+    solde = fields.Float(
+        string="solde",
+        store=True,
+        compute="get_solde"
+    )
+
+    ecart_sur_montant = fields.Float(
+        string='Ecart de justification'
+    )
+
+    taux = fields.Float(
+        string='Taux de change'
+    )
+
     reference_origine = fields.Many2one(
         'account.caisse.line',
         string='Référence d\'origine',
@@ -94,17 +143,21 @@ class AccountCaisseLine(models.Model):
         related='categorie_id.compte_analytique'
     )
 
+    montant = fields.Float(
+        string="Montant"
+    )
 
-    montant = fields.Float(string="Montant")
     categorie_id = fields.Many2one(
         'categorie.operation',
         string='Categorie d\'opération', check_company=True,
     )
+
     model_id = fields.Many2one(
         'account.reconcile.model',
         string='Model de reconciliation',
         check_company=True,
     )
+
     company_id = fields.Many2one(
         'res.company',
         string='Société',
@@ -118,14 +171,19 @@ class AccountCaisseLine(models.Model):
         'account.caisse',
         string='Caisse', check_company=True,
     )
+
     beneficiaire = fields.Char(string='Bénéficiaire')
+
     montant_en_lettre = fields.Char(
-        string="Montant en lettre", compute="calcul_montant_en_lettre")
+        string="Montant en lettre",
+        compute="calcul_montant_en_lettre"
+    )
 
     caise_type_id = fields.Many2one(
         'type.caisse',
         string='Type de caisse', check_company=True,
     )
+
     user_id = fields.Many2one(
         'res.users',
         string='Caissier',
@@ -155,6 +213,30 @@ class AccountCaisseLine(models.Model):
         track_visibility='always',
         string='Devise',
     )
+
+    full_name = fields.Char(compute="get_full_name")
+
+    def get_full_name(self):
+        for rec in self:
+            name = rec.libelle
+            if rec.move_id:
+                name = "{} - {}".format(rec.libelle, rec.move_id.name)
+            rec.full_name = name
+
+    @api.depends('partner_id')
+    def _get_invoice_by_partners(self):
+        for rec in self:
+            move_ids = self.env['account.move'].search(
+                [
+                    ('move_type', 'in', ['out_invoice', 'in_invoice']),
+                    ('payment_state', '!=', 'paid'),
+                    ('state', '=', 'posted'),
+                    ('partner_id', 'in', rec.partner_id.ids),
+                ]
+            )
+            if move_ids:
+                rec.account_invoice_ids = move_ids.ids
+
 
     def get_analytic_display(self):
         if self.analytic_distribution:
@@ -363,7 +445,7 @@ class AccountCaisseLine(models.Model):
                 ('partner_id', '=', rec.partner_id.id),
                 ('state', '=', 'posted'),
                 ('invoice_payment_state', 'not in', ['paid']),
-                ('type', '=', type_invoice),
+                ('move_type', '=', type_invoice),
             ]}}
 
     @api.onchange('caisse_id', 'date')
@@ -423,52 +505,42 @@ class AccountCaisseLine(models.Model):
 
     def post_account_move_payment(self):
         for rec in self:
-            print(f"Montant{rec.montant}")
             payment_vals = None
-            if rec.move_id.type == 'in_invoice':
+            if rec.move_id.move_type == 'in_invoice':
                 payment_vals = {
                     'payment_type': 'outbound',
                     'partner_id': rec.partner_id.id,
                     'amount': abs(rec.montant),
-                    'payment_date': rec.date,
+                    'date': rec.date,
                     'caisse_id': rec.caisse_id.id,
                     'caisse_line_id': rec.id,
-                    'communication': rec.full_name,
+                    'ref': rec.full_name,
                     'partner_type': 'supplier',
                     'payment_method_id': 1,
                     'currency_id': rec.currency_id.id,
                     'company_id': rec.company_id.id,
                     'journal_id': rec.caisse_id.account_journal_id.id,
-                    'invoice_ids': [(4, rec.move_id.id)],
+                    # 'invoice_ids': [(4, rec.move_id.id)],
                 }
             else:
                 payment_vals = {
                     'payment_type': 'inbound',
                     'partner_id': rec.partner_id.id,
                     'amount': rec.montant,
-                    'payment_date': rec.date,
+                    'date': rec.date,
                     'caisse_line_id': rec.id,
                     'caisse_id': rec.caisse_id.id,
                     'payment_method_id': 1,
                     'partner_type': 'customer',
                     'currency_id': rec.currency_id.id,
-                    'communication': rec.full_name,
+                    'ref': rec.full_name,
                     'journal_id': rec.caisse_id.account_journal_id.id,
-                    'invoice_ids': [(4, rec.move_id.id)],
+                    # 'invoice_ids': [(4, rec.move_id.id)],
                 }
             # raise UserError(_(payment_vals))
             payment = self.env['account.payment'].create(payment_vals)
-            payment.post()
+            payment.action_post()
             rec.move_id.message_post(body=f'Payment of {payment.amount} created and posted.')
-
-    full_name = fields.Char(compute="get_full_name")
-
-    def get_full_name(self):
-        for rec in self:
-            name = rec.libelle
-            if rec.move_id:
-                name = "{} - {}".format(rec.libelle, rec.move_id.name)
-            rec.full_name = name
 
     @api.onchange('date')
     def onchange_date(self):

@@ -14,73 +14,29 @@
 
         <template id="report_stock_picking">
             <t t-call="web.html_container">
-                <style>
-                    .page, table{
-                    font-size:12px;
-                    font-family: arial;
-                    }
-                    h1{
-                    text-align:center;
-                    }
-                    .commandlines th{
-                    background-color: lightgray;
-                    border-radius: 5px;
-                    padding: 5px;
-                    }
-                    .entete table{
 
-                    }
-                    .client{
-                    background-color: lightgray;
-                    border-radius: 5px;
-                    padding: 5px;
-                    }
-                    .total{
-                    text-align: right;
-                    background-color: lightgray;
-                    border-radius: 5px;
-                    padding: 5px;
-                    }
-                    .title1{
-                    font-size: 22px ;
-                    font-weight: bold;
-                    font-family: algerian;
-                    }
-                    .title2{
-                    font-size: 18px ;
-                    font-weight: bold;
-                    }
-                    .amount{
-                    text-align:right;
-                    }
-                    tr, td, th{
-                    vertical-align: top;
-                    }
-                    .entete-date{
-                    position:absolute;
-                    right:0;
-                    top:18;
-                    }
-                </style>
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.html_container">
                         <br/>
-                        <div class="page">
-                            <div class="entete" id="entete">
-                                <p class="entete-date"><t t-esc="o.company_id.city"/>, le
+                        <div class="page" style="font-family: arial;font-size:12px">
+                            <div>
+                                <p  style="position:absolute;right:0;top:18px;"><t
+                                        t-esc="o.company_id.city"/>, le
                                     <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
                                 </p>
-                                <table class="table" width="100%">
+                                <table style="font-family: arial;font-size:12px" width="100%">
                                     <tr style="text-align:center;">
                                         <td rowspan="6">
                                             <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
                                         </td>
-                                        <td class="title1" colspan="3">
+                                        <td class="title1"
+                                            style="font-size: 22px ;font-weight: bold;font-family: algerian;"
+                                            colspan="3">
                                             <t t-esc="o.company_id.company_name"/>
                                         </td>
                                     </tr>
                                     <tr style="text-align:center;">
-                                        <td class="title2" colspan="3">
+                                        <td style="font-size: 18px ;font-weight: bold;" class="title2" colspan="3">
                                             <t t-esc="o.company_id.description"/>
                                         </td>
                                     </tr>
@@ -128,7 +84,8 @@
                                             <u>Vendeur :</u>
                                             <span t-field="o.sale_id.user_id.name"/>
                                         </td>
-                                        <td width="40%" colspan="2" class="client">
+                                        <td width="40%" colspan="2"
+                                            style="background-color: lightgray;border-radius: 5px;padding: 5px">
                                             <u>N°Client :</u>
                                             <span t-field="o.partner_id.ref"/>
                                             <br/>
@@ -138,51 +95,51 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="commandlines" id="commandelines">
-                                <table width="100%">
-                                    <thead>
+
+                            <table style="border: 1px solid black; border-collapse: collapse; width: 100%; margin-bottom: 15px; margin-top: 12px;">
+                                <thead style="background-color: #f5f1ed;">
+                                    <tr>
+                                        <th style="border: 1px solid black;">Référence</th>
+                                        <th style="border: 1px solid black;">Libellé article</th>
+                                        <th style="border: 1px solid black;">N°Lot</th>
+                                        <th style="border: 1px solid black;">Qté</th>
+                                        <th style="border: 1px solid black;">Reste à livrer</th>
+                                        <th style="border: 1px solid black;">Unité</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.move_line_ids" t-as="line">
                                         <tr>
-                                            <th>Référence</th>
-                                            <th>Libellé article</th>
-                                            <th>N°Lot</th>
-                                            <th>Qté</th>
-                                            <th>Reste à livrer</th>
-                                            <th>Unité</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="o.move_line_ids" t-as="line">
-                                            <tr>
-                                                <td>
-                                                    <t t-esc="line.product_id.default_code"/>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.product_id.name"/>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.lot_id.name"/>
-                                                </td>
-                                                <td class="amount">
-                                                    <t t-esc="line.quantity"/>
-                                                </td>
-                                                <td class="amount">
-                                                    <t t-foreach="request.env['sale.order'].search([('name','=', o.origin)])"
-                                                       t-as="obj">
-                                                        <t t-foreach="obj.order_line" t-as="lline">
-                                                            <t t-if="line.product_id.default_code == line.product_id.default_code">
-                                                                <t t-esc="'{:,}'.format((line.move_id.product_uom_qty - line.quantity)).replace(',',' ')"/>
-                                                            </t>
+                                            <td style="border: 1px solid black;">
+                                                <t t-esc="line.product_id.default_code"/>
+                                            </td>
+                                            <td style="border: 1px solid black;">
+                                                <t t-esc="line.product_id.name"/>
+                                            </td>
+                                            <td style="border: 1px solid black;">
+                                                <t t-esc="line.lot_id.name"/>
+                                            </td>
+                                            <td style="border: 1px solid black;" class="text-center">
+                                                <t t-esc="line.quantity"/>
+                                            </td>
+                                            <td style="border: 1px solid black;" class="text-center">
+                                                <t t-foreach="request.env['sale.order'].search([('name','=', o.origin)])"
+                                                   t-as="obj">
+                                                    <t t-foreach="obj.order_line" t-as="lline">
+                                                        <t t-if="line.product_id.default_code == lline.product_id.default_code">
+                                                            <t t-esc="'{:,}'.format((lline.product_uom_qty - line.quantity)).replace(',',' ')"/>
                                                         </t>
                                                     </t>
-                                                </td>
-                                                <td>
-                                                    <t t-esc="line.product_id.uom_id.name"/>
-                                                </td>
-                                            </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
-                            </div>
+                                                </t>
+                                            </td>
+                                            <td class="text-center" style="border: 1px solid black;">
+                                                <t t-esc="line.product_id.uom_id.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
                             <div class="pied" id="pied">
                                 <table width="100%">
                                     <tr>
@@ -192,6 +149,7 @@
                                     </tr>
                                 </table>
                             </div>
+
                         </div>
                     </t>
                 </t>
