@@ -12,8 +12,13 @@
     'category': 'Tools',
 
     'depends': [
-        'base', 'account', 'mail', 'analytic',
+        'base',
+        'account',
+        'mail',
+        'analytic',
+        'th_report_invoice_sale_order',
     ],
+
     'data': [
         # security
         'security/security.xml',

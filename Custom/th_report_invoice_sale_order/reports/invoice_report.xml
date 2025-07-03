@@ -1,179 +1,241 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-	
-	<report 
-		id = "account_move_report" 
-		model = "account.move" 
-		string = "FACTURE AVEC REMISE" 
-		report_type = "qweb-pdf" 
-		name = "th_report_invoice_sale_order.report_account_move" 
-		file = "th_report_invoice_sale_order.report_account_move"
-		paperformat = "paperformat_rdc_1"
-		/>
-		<template id="report_account_move">
-			<t t-call="web.html_container">
-				<style>
-					.page, table{
-						font-size:12px;
-					}
-					h1{
-						text-align:center;
-					}
-					.commandlines th{
-						background-color: lightgray;
-						border-radius: 5px;
-						padding: 5px;
-					}
-					.entete table{
-						
-					}
-					.client{
-						background-color: lightgray;
-						border-radius: 5px;
-						padding: 5px;
-					}
-					.total{
-						text-align: right;
-						background-color: lightgray;
-						border-radius: 5px;
-						padding: 5px;
-					}
-					.title1{
-						font-size: 20px ;
-						font-weight: bold;
-						font-family: algerian;
-					}
-					.title2{
-						font-size: 18px ;
-						font-weight: bold;
-					}
-					.amount{
-						text-align:right;
-					}
-					tr, td, th{
-						vertical-align: top;
-					}
-					.entete-date{
-						position:absolute;
-						right:0;
-						top:18px;
-					}
-				</style>
-				<t t-foreach="docs" t-as="o">
-					<!-- <t t-call="web.basic_layout"> -->
-					<br/>
-						<div class="page">
-							<div class="entete" id="entete">
-							<p class="entete-date"><t t-esc="o.company_id.city" />, le <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/></p>
-								<table class="table" width="100%">
-									<tr style="text-align:center;">
-										<td rowspan="6"><img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/></td>
-										<td class="title1" colspan="3"><t t-esc="o.company_id.company_name" /></td>
-									</tr>
-									<tr style="text-align:center;">
-										<td class="title2" colspan="3"><t t-esc="o.company_id.description" /></td>
-									</tr>
-									<tr>
-										<td><t t-esc="o.company_id.street" /></td>
-										<td width="45%">RCCM : <t t-esc="o.company_id.rccm" /><br/>
-											ID Nat :<t t-esc="o.company_id.id_nat" />
-										</td>
-									</tr>
-									<tr>
-										<td>Email : <t t-esc="o.company_id.email" /></td>
-										<td>NIF : <t t-esc="o.company_id.nif" /></td>
-									</tr>
-									<tr>
-										<td>Tel : <t t-esc="o.company_id.phone" /></td>
-										<td>N° Imp/Ex : <t t-esc="o.company_id.numeroimpex" /></td>
-									</tr>
-								</table>
-								<table width="100%">
-									<tr class="text-center">
-										<th class="text-center" colspan="3"><u>FACTURE N° <span t-field="o.name"/></u></th>
-									</tr>
-									<tr>
-										<td width="50%">
-											<u>Réf BC :</u> <span t-field="o.invoice_origin"/><br/>
-											<u>Réf BL :</u>
-											<t t-if="o.invoice_origin">
-												<t t-foreach="request.env['stock.picking'].search([('origin','=',o.invoice_origin),('state','=', 'done')])" t-as="obj">
-													<t t-esc="obj.name"/>
-												</t>
-											</t>
-											<br/>
-											<u>Vendeur :</u> <span t-field="o.invoice_user_id.name"/>
-										</td>
-										<td width="40%" colspan="2" class="client">
-											<u>N°Client :</u> <span t-field="o.partner_id.ref"/><br/>
-											<u>Nom du client :</u> <span t-field="o.partner_id.name"/>
-										</td>
-									</tr>
-								</table>
+    <data>
+        <record id="account_move_report" model="ir.actions.report">
+            <field name="name">FACTURE AVEC REMISE</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">th_report_invoice_sale_order.report_account_move</field>
+            <field name="report_file">th_report_invoice_sale_order.report_account_move</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_rdc_1"/>
+        </record>
+
+        <template id="report_account_move">
+            <t t-call="web.html_container">
+                <style>
+                    .page, table{
+                    font-size:12px;
+                    font-family: arial; }
+                    h1{
+                    text-align:center;
+                    }
+                    .commandlines th{
+                    background-color: lightgray;
+                    border-radius: 5px;
+                    padding: 5px;
+                    }
+                    .entete table{
+
+                    }
+                    .client{
+                    background-color: lightgray;
+                    border-radius: 5px;
+                    padding: 5px;
+                    }
+                    .total{
+                    text-align: right;
+                    background-color: lightgray;
+                    border-radius: 5px;
+                    padding: 5px;
+                    }
+                    .title1{
+                    font-size: 20px ;
+                    font-weight: bold;
+                    font-family: algerian;
+                    }
+                    .title2{
+                    font-size: 18px ;
+                    font-weight: bold;
+                    }
+                    .amount{
+                    text-align:right;
+                    }
+                    tr, td, th{
+                    vertical-align: top;
+                    }
+                    .entete-date{
+                    position:absolute;
+                    right:0;
+                    top:18px;
+                    }
+                </style>
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.html_container">
+                        <br/>
+                        <div class="page">
+                            <div class="entete" id="entete">
+                                <p class="entete-date"><t t-esc="o.company_id.city"/>, le
+                                    <span t-field="o.invoice_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </p>
+                                <table class="table" width="100%">
+                                    <tr style="text-align:center;">
+                                        <td rowspan="6">
+                                            <img style="width: 100px;" t-att-src="image_data_uri(o.company_id.logo)"/>
+                                        </td>
+                                        <td class="title1" colspan="3">
+                                            <t t-esc="o.company_id.company_name"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="text-align:center;">
+                                        <td class="title2" colspan="3">
+                                            <t t-esc="o.company_id.description"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <t t-esc="o.company_id.street"/>
+                                        </td>
+                                        <td width="45%">RCCM :
+                                            <t t-esc="o.company_id.rccm"/>
+                                            <br/>
+                                            ID Nat :
+                                            <t t-esc="o.company_id.id_nat"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email :
+                                            <t t-esc="o.company_id.email"/>
+                                        </td>
+                                        <td>NIF :
+                                            <t t-esc="o.company_id.nif"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tel :
+                                            <t t-esc="o.company_id.phone"/>
+                                        </td>
+                                        <td>N° Imp/Ex :
+                                            <t t-esc="o.company_id.numeroimpex"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table width="100%">
+                                    <tr class="text-center">
+                                        <th class="text-center" colspan="3">
+                                            <u>FACTURE N°
+                                                <span t-field="o.name"/>
+                                            </u>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td width="50%">
+                                            <u>Réf BC :</u>
+                                            <span t-field="o.invoice_origin"/>
+                                            <br/>
+                                            <u>Réf BL :</u>
+                                            <t t-if="o.invoice_origin">
+                                                <t t-foreach="request.env['stock.picking'].search([('origin','=',o.invoice_origin),('state','=', 'done')])"
+                                                   t-as="obj">
+                                                    <t t-esc="obj.name"/>
+                                                </t>
+                                            </t>
+                                            <br/>
+                                            <u>Vendeur :</u>
+                                            <span t-field="o.invoice_user_id.name"/>
+                                        </td>
+                                        <td width="40%" colspan="2" class="client">
+                                            <u>N°Client :</u>
+                                            <span t-field="o.partner_id.ref"/>
+                                            <br/>
+                                            <u>Nom du client :</u>
+                                            <span t-field="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
-							<div class="commandlines" id="commandelines">
-							<t t-set="total_remise" t-value="0"/>
-							<table width="100%">
-								<thead>
-									<tr>
-										<th>Référence</th>
-										<th>Libellé article</th>
-										<th>Qté</th>
-										<th>Unité</th>
-										<th>P.U.</th>
-										<th>Remise%</th>
-                                        <th>P.TOT.</th>
-									</tr>
-								</thead>
-								<tbody>
-									<t t-foreach="o.invoice_line_ids" t-as="line">
-										<tr>
-											<td><t t-esc="line.product_id.default_code"/></td>
-											<td><t t-esc="line.product_id.name"/></td>
-											<td><t t-esc="line.quantity"/></td>											
-											<td><t t-esc="line.product_id.uom_id.name"/></td>
-                                            <td class="amount"><t t-esc="'{:,}'.format(float(line.price_unit)).replace(',',' ')"/></td>
-											<td class="amount">
-												<t t-if="line.discount">
-													<t t-esc="line.discount"/>
-													<t t-set="total_remise" t-value="total_remise + (line.quantity * line.discount * line.price_unit)/100"/>
-												</t>
-											</td>
-											<td class="amount"> <span t-esc="line.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></td>
-										</tr>
-									</t>
-								</tbody>
-							</table>
-							</div>
-							<div class="pied" id="pied">
-								<table width="100%">
-									<tr>
-										<th></th>
-										<th style="text-align:right;">Total Brut</th>
-										<th class="total"> <span t-esc="o.amount_untaxed + total_remise" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></th>										
-									</tr>
-									<tr>
-										<th></th>
-										<th style="text-align:right;">Remise</th>
-										<th width="20%" class="total"><t t-esc="total_remise" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></th>
-									</tr>
-									<t t-foreach="o.amount_by_group" t-as="taxe">
-										<tr>
-											<th></th>
-											<th style="text-align:right;"><t t-esc="taxe[0]"/></th>
-											<th width="20%" class="total"><t t-esc="taxe[1]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></th>
-										</tr>
-									</t>
-									<tr>
-										<th></th>
-										<th style="text-align:right;">NET A PAYER</th>
-										<th width="20%" class="total"><t t-esc="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/></th>
-									</tr>
-								</table>
-							</div>
-						</div>
-					</t>
-				<!-- </t> -->
-			</t>
-		</template>
-	</odoo>
+                            <div class="commandlines" id="commandelines">
+                                <t t-set="total_remise" t-value="0"/>
+                                <table width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Référence</th>
+                                            <th>Libellé article</th>
+                                            <th>Qté</th>
+                                            <th>Unité</th>
+                                            <th>P.U.</th>
+                                            <th>Remise%</th>
+                                            <th>P.TOT.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.invoice_line_ids" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <t t-esc="line.product_id.default_code"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_id.name"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.quantity"/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="line.product_id.uom_id.name"/>
+                                                </td>
+                                                <td class="amount">
+                                                    <t t-esc="'{:,}'.format(float(line.price_unit)).replace(',',' ')"/>
+                                                </td>
+                                                <td class="amount">
+                                                    <t t-if="line.discount">
+                                                        <t t-esc="line.discount"/>
+                                                        <t t-set="total_remise"
+                                                           t-value="total_remise + (line.quantity * line.discount * line.price_unit)/100"/>
+                                                    </t>
+                                                </td>
+                                                <td class="amount">
+                                                    <span t-esc="line.price_subtotal"
+                                                          t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pied" id="pied">
+                                <table width="100%">
+                                    <tr>
+                                        <th></th>
+                                        <th style="text-align:right;">Total Brut</th>
+                                        <th class="total">
+                                            <span t-esc="o.amount_untaxed + total_remise"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th style="text-align:right;">Remise</th>
+                                        <th width="20%" class="total">
+                                            <span t-esc="total_remise"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th style="text-align:right;">TVA</th>
+                                        <th width="20%" class="total">
+                                            <span t-esc="o.amount_tax"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th style="text-align:right;">NET À PAYER</th>
+                                        <th width="20%" class="total">
+                                            <span t-esc="o.amount_total"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

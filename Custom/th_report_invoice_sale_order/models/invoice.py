@@ -56,10 +56,10 @@ class AccountMove(models.Model):
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         for rec in self:
-            if rec.type == 'out_invoice':
+            if rec.move_type == 'out_invoice':
                 if rec.partner_id.jounral_sale_id :
                     rec.journal_id = rec.partner_id.jounral_sale_id.id
 
-            if rec.type == 'out_invoice':
+            if rec.move_type == 'out_invoice':
                 if rec.partner_id.jounral_purchase_id:
                     rec.journal_id = rec.partner_id.jounral_purchase_id.id
