@@ -9,7 +9,7 @@ class CaisseBilletage(models.TransientModel):
     _check_company_auto = True
 
     caisse_id = fields.Many2one(
-        'account.caisse',
+        comodel_name='account.caisse',
         string='Caisse',
         check_company=True
     )
@@ -141,8 +141,8 @@ class CaisseBilletage(models.TransientModel):
                 'solde_final': self.montant_total
             })
 
-class CaisseBilletageLine(models.TransientModel):
 
+class CaisseBilletageLine(models.TransientModel):
     _name = 'caisse.billetage.line'
     _description = 'Linge de billetage'
     _check_company_auto = True
@@ -150,18 +150,27 @@ class CaisseBilletageLine(models.TransientModel):
     nombre = fields.Float(string="Nombre de billet/pièce")
     valeur = fields.Float(string="Valeur")
     montant = fields.Float(string="Montant")
+
     caisse_id = fields.Many2one(
-        'account.caisse',
+        comodel_name='account.caisse',
         string='Caisse',
         check_company=True
     )
-    balance = fields.Selection([('start', 'Solde initial'),('close','Solde final')])
+
+    balance = fields.Selection(
+        selection=[('start', 'Solde initial'),
+                   ('close','Solde final')
+                   ]
+    )
+
     billetage_id = fields.Many2one(
-        'caisse.billetage',
-        string='Model de billetage', check_company=True
-        )
+        comodel_name='caisse.billetage',
+        string='Model de billetage',
+        check_company=True
+    )
+
     company_id = fields.Many2one(
-        'res.company',
+        comodel_name='res.company',
         string='Société',
         copy=True, store=True, index=True, 
         ondelete='restrict',

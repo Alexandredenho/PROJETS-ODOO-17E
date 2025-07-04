@@ -1,9 +1,6 @@
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 
-
-
-
 muz = (' ', 'Onze', 'Douze', 'Treize',
        'Quatorze', 'Quinze', 'Seize', 'Dix-Sept', 'Dix-Huit', 'Dix-Neuf')
 
@@ -24,53 +21,81 @@ class SortieAttente(models.Model):
     _description = 'Sortie en attente'
     _rec_name = 'reference'
 
-    reference = fields.Char(string="Référence", copy=False, readonly=True, default="Nouveau")
+    reference = fields.Char(
+        string="Référence",
+        copy=False,
+        readonly=True,
+        default="Nouveau"
+    )
+
     def _get_date(self):
         return self.caisse_id.date_start
-    date = fields.Date(string="Date", required=True, default=_get_date)
-    libelle = fields.Char(string="Libellé", required=True)
+
+    date = fields.Date(
+        string="Date",
+        required=True,
+        default=_get_date
+    )
+
+    libelle = fields.Char(
+        string="Libellé",
+        required=True
+    )
+
     note = fields.Char(string="Commentaire")
+
     partner_id = fields.Many2one(
-        'res.partner',
+        comodel_name='res.partner',
         string='Partenaire',
-        )
+    )
+
     type_partenaire = fields.Selection([
         ('client', 'Client'),
         ('fournisseur', 'Fournisseur'),
         ('salarie', 'Salarié'),
         ('autre', 'Autre'),
     ])
+
     montant = fields.Float(string="Montant")
+
     categorie_id = fields.Many2one(
-        'categorie.operation',
+        comodel_name='categorie.operation',
         string='Categorie d\'opération',
-        )
+    )
+
     model_id = fields.Many2one(
-        'account.reconcile.model',
+        comodel_name='account.reconcile.model',
         string='Model de reconciliation',
-        )
+    )
+
     company_id = fields.Many2one(
-        'res.company',
+        comodel_name='res.company',
         string='Société',
         copy=True, store=True, index=True, 
         ondelete='restrict',
         default=lambda self: self.env['res.company']._company_default_get('th_caisse_externe').id
-        
+
     )
+
     caisse_id = fields.Many2one(
-        'account.caisse',
+        comodel_name='account.caisse',
         string='Caisse',
-        )
+    )
+
     beneficiaire = fields.Char(string='Bénéficiaire')
+
     montant_en_lettre = fields.Char(
-        string="Montant en lettre", compute="calcul_montant_en_lettre")
+        string="Montant en lettre",
+        compute="calcul_montant_en_lettre"
+    )
 
     caise_type_id = fields.Many2one(
-        'type.caisse',
+        comodel_name='type.caisse',
         string='Type de caisse',
     )
+
     user_id = fields.Many2one(
-	    'res.users',
+	    comodel_name='res.users',
 	    string='Caissier',
 	    default=lambda self: self.env.user.id,
 	    readonly=True,

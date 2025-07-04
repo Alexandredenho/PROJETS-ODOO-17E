@@ -6,17 +6,19 @@ class CaisseSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
     compte_perte_id = fields.Many2one(
-        'account.account',
+        comodel_name='account.account',
         string='Compte de perte de change',
         domain="[('company_id', '=', company_id)]"
     )
+
     compte_gain_id = fields.Many2one(
-        'account.account',
+        comodel_name='account.account',
         string='Compte de gain de change',
         domain="[('company_id', '=', company_id)]"
     )
+
     journal_id = fields.Many2one(
-        'account.journal',
+        comodel_name='account.journal',
         string='Journal de difference de change',
         domain="[('company_id', '=', company_id)]"
     )
@@ -25,7 +27,6 @@ class CaisseSettings(models.TransientModel):
     def set_values(self):
         res = super(CaisseSettings, self).set_values()
         company_id = self.env.company.id
-
         self.env['ir.config_parameter'].set_param('th_caisse_externe.compte_perte_id_{}'.format(company_id), self.compte_perte_id.id)
         self.env['ir.config_parameter'].set_param('th_caisse_externe.compte_gain_id_{}'.format(company_id), self.compte_gain_id.id)
         self.env['ir.config_parameter'].set_param('th_caisse_externe.journal_id_{}'.format(company_id), self.journal_id.id)

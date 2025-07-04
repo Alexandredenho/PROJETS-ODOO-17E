@@ -158,42 +158,49 @@ class CaisseAttenteLineWizard(models.TransientModel):
     ecart_sur_montant = fields.Float(string='Ecart de justification')
     taux = fields.Float(string='Taux de change')
     taux_de_change = fields.Float(string='Taux de change de l\'opération')
+
     caisse_line_id = fields.Many2one(
-        'account.caisse.line',
+        comodel_name='account.caisse.line',
         string='operation',
     )
     montant = fields.Float(string="Montant opération")
+
     categorie_id = fields.Many2one(
-        'categorie.operation',
+        comodel_name='categorie.operation',
         string='Categorie d\'opération', 
     )
+
     company_id = fields.Many2one(
-        'res.company',
+        comodel_name='res.company',
         string='Société',
         copy=True, store=True, index=True, 
         ondelete='restrict',
         default=lambda self: self.env['res.company']._company_default_get('th_caisse_externe').id
         
         )
+
     caisse_id = fields.Many2one(
-        'account.caisse',
+        comodel_name='account.caisse',
         string='Caisse',         
     )
 
     user_id = fields.Many2one(
-	    'res.users',
+	    comodel_name='res.users',
 	    string='Caissier',
 	    default=lambda self: self.env.user.id,
 	    readonly=True,
 	)
+
     operation_id = fields.Many2one(
-        'operation.justifier',
+        comodel_name='operation.justifier',
         string='Opération',
     )
+
     currency_id = fields.Many2one(
-        'res.currency',
+        comodel_name='res.currency',
         string='Devise',
     )
+
     est_remboursement = fields.Boolean(string="Est un rembourssent")
 
     # les champs du module th_caisse_externe_analytique
@@ -203,7 +210,6 @@ class CaisseAttenteLineWizard(models.TransientModel):
         string='Compte analytique',
     )
 
-    # analytique_tag_ids = fields.Many2many('account.analytic.tag')
 
     @api.onchange('montant_devise','montant')
     def onchange_montant_montant_devise(self):

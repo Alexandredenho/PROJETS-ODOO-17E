@@ -257,7 +257,7 @@
                                         <t t-esc="operation_id.categorie_id.name"/>
                                     </td>
 
-                                    <td class="text-center" name="analytique" t-if="operation_id.analytic_distribution">
+                                    <td class="text-center" name="analytique">
                                         <t t-foreach="operation_id.get_analytic_display()" t-as="line">
                                             <span class="text-center" t-esc="line"/>
                                             <br/>

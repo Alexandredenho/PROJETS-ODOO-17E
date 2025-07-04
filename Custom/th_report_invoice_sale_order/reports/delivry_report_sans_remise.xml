@@ -100,7 +100,7 @@
                             </div>
 
                             <table style="border: 1px solid black; border-collapse: collapse; width: 100%; margin-bottom: 15px; margin-top: 12px;">
-                                <thead style="background-color: #f5f1ed;">
+                                <thead style="background-color: lightgray;">
                                     <tr>
                                         <th style="border: 1px solid black;">Référence</th>
                                         <th style="border: 1px solid black;">Libellé article</th>

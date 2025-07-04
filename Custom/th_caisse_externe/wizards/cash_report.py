@@ -7,7 +7,9 @@ class CashReportWizard(models.TransientModel):
     _check_company_auto = True
     _description = "Rapport d'opération de caisse"
     
-    caise_ids = fields.Many2many('account.caisse')
+    caise_ids = fields.Many2many(
+        comodel_name='account.caisse'
+    )
 
     def print_report(self):
         data = {}

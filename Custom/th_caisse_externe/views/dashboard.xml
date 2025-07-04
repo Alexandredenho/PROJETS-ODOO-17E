@@ -230,7 +230,6 @@
         </field>
     </record>
 
-
     <record id="facturation_caisse_menu_action" model="ir.actions.act_window">
         <field name="name">Facturation</field>
         <field name="res_model">account.move</field>
@@ -320,7 +319,7 @@
             parent="caisse_config_menu"
             sequence="100"
     />
-    <!--        action="analytic.account_analytic_tag_action"-->
+
 
 
     <menuitem

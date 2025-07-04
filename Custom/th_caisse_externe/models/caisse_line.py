@@ -418,8 +418,11 @@ class AccountCaisseLine(models.Model):
 
 
     def action_print_th_caisse_externe_line_report(self):
-        print("self",self)
-        return self.env.ref('th_caisse_externe.th_caisse_externe_line_report').report_action(self)
+        try:
+            return self.env.ref('th_caisse_externe.th_caisse_externe_line_report').report_action(self)
+        except Exception as e:
+            raise UserError(_('Le rapport n\'est pas disponible: %s' % e))
+
 
     @api.onchange('move_id')
     def onchange_move_id(self):

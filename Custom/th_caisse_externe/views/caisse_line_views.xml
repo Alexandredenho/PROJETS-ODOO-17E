@@ -34,11 +34,14 @@
                                 <field name="montant_en_lettre"/>
                             </group>
                             <group>
-                                <field name="analitic_account_id"/>
+                                <field name="analitic_account_id" invisible="1"/>
+                                <field name="analytic_distribution"
+                                       widget="analytic_distribution"
+                                       options="{'no_open': True}"
+                                />
                                 <field name="note"/>
                                 <field name="categorie_id" invisible="1"/>
                                 <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
-<!--                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>-->
                                 <field name="piece_joint"/>
                                 <field name="a_justifier"/>
                             </group>
@@ -47,7 +50,6 @@
                 </form>
             </field>
         </record>
-
 
         <record id="account_caisse_line_tree" model="ir.ui.view">
             <field name="name">Liste des opérations</field>
@@ -60,15 +62,19 @@
                     <field name="date"/>
                     <field name="libelle"/>
                     <field name="currency_id"/>
-                    <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
+                    <field name="analitic_account_id" optional="hide"/>
                     <field name="categorie_id"/>
-                     <field name="analitic_account_id" readonly="('a_justifier', '=', True)"/>
-<!--                <field name="analytique_tag_ids" attrs="{'readonly': [('a_justifier', '=', True)]}"  widget="many2many_tags"/>-->
-                    <field name="partner_id"/>
+                    <field name="analytic_distribution"
+                           widget="analytic_distribution"
+                           options="{'no_open': True}"
+                           readonly="('a_justifier'== True)"
+                           optional="hide"
+                    />
+                    <field name="partner_id" optional="show"/>
                     <field name="montant" widget="monetary"/>
-                    <field name="entree"/>
-                    <field name="sortie"/>
-                    <field name="solde"/>
+                    <field name="entree" optional="show"/>
+                    <field name="sortie" optional="show"/>
+                    <field name="solde" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="note" optional="show"/>
                     <field name="piece_joint" optional="show"/>
@@ -84,7 +90,6 @@
                 </tree>
             </field>
         </record>
-
 
         <record id="account_caissei_line_extene_menu_action" model="ir.actions.act_window">
             <field name="name">Opérations de caisse</field>

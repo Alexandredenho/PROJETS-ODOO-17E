@@ -53,12 +53,20 @@ class AccountCaisseBilletageLine(models.Model):
     nombre = fields.Float(string="Nombre de billet/pièce")
     valeur = fields.Float(string="Valeur")
     montant = fields.Float(string="Montant")
-    balance = fields.Selection([('start', 'Solde initial'),('close','Solde final')], required=True)
+
+    balance = fields.Selection(
+        selection=[
+            ('start', 'Solde initial'),
+            ('close','Solde final')
+        ], required=True
+    )
+
     caisse_id = fields.Many2one(
         'account.caisse',
         string='Caisse',
         check_company=True
     )
+
     company_id = fields.Many2one(
         'res.company',
         string='Société',

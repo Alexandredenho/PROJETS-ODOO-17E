@@ -11,23 +11,33 @@ class TypeCaisse(models.Model):
     _description = 'Type de caisse'
 
     name = fields.Char(string="Nom")
+
     journal_id = fields.Many2one(
         'account.journal',
         string='Journal',
         required=True,
-        domain=[('type', '=', 'cash')], check_company=True
+        domain=[('type', '=', 'cash')],
+        check_company=True
     )
+
     currency_id = fields.Many2one(
         'res.currency',
         string='Devise',
     )
+
     solde_caisse = fields.Float(string="Solde caisse")
     seuil_maximal = fields.Float(string="Seuil maximal de la caisse")
-    auto_post = fields.Boolean(string="Comptabiliser automatiquement les écritures comptables", default=True)
+
+    auto_post = fields.Boolean(
+        string="Comptabiliser automatiquement les écritures comptables",
+        default=True
+    )
+
     user_id = fields.Many2one(
         'res.users',
         string='Utilisateur',
     )
+
     color = fields.Integer(string="Couleur")
     company_id = fields.Many2one(
         'res.company',

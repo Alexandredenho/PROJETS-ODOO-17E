@@ -177,7 +177,7 @@
                                     <th>Caisse</th>
                                     <th>Designation</th>
                                     <th>Tiers</th>
-                                    <th t-if="o.analytic_distribution">Analytique</th>
+                                    <th>Analytique</th>
                                     <th>Montant</th>
                                     <th>Devise</th>
                                 </tr>
@@ -192,7 +192,7 @@
                                         <t t-esc="o.partner_id.name"/>
                                     </td>
 
-                                    <td class="text-center" name="analytique" t-if="o.analytic_distribution">
+                                    <td class="text-center" name="analytique">
                                         <t t-foreach="o.get_analytic_display()" t-as="line">
                                             <span class="text-center" t-esc="line"/>
                                             <br/>

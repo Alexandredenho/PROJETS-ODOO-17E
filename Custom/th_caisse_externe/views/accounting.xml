@@ -26,7 +26,7 @@
     <menuitem
         id="comptabilite_caisse_menu"
         name="Comptabilité"
-        groups="group_caisse_superviseur,group_caisse_admin"
+        groups="th_caisse_externe.group_caisse_superviseur,th_caisse_externe.group_caisse_admin"
         action="account_caisse_extene_accounting_menu_action"
         parent="caise_externe"
         sequence="30"/>

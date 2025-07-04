@@ -14,16 +14,14 @@ def remove_company_id(cr, registry):
 
 
 class IrSequence(models.Model):
-
     _inherit = 'ir.sequence'
 
     type_cassie_id = fields.Many2one(
-        'type.caisse',
+        comodel_name='type.caisse',
         string='Type de caisse',
     )
 
 class AccountAnalyticLine(models.Model):
-
     _inherit = 'account.analytic.line'
 
     caisse_id = fields.Many2one(
@@ -35,7 +33,6 @@ class AccountAnalyticLine(models.Model):
         comodel_name='account.caisse.line',
         string='Ligne de caisse externe',
     )
-
 
 
 
@@ -236,11 +233,10 @@ class AccountCaisse(models.Model):
     )
 
     def action_print_th_caisse_report(self):
-        print("self",self)
-        return self.env.ref('th_caisse_externe.th_caisse_externe_report').report_action(self)
-
-
-
+        try:
+            return self.env.ref('th_caisse_externe.th_caisse_externe_report').report_action(self)
+        except Exception as e:
+            raise UserError(_("Erreur lors de l'impression du relevé. le rapport est introuvable.\n%s") % e)
 
     def _get_accout_move_count(self):
         for rec in self:
@@ -308,7 +304,6 @@ class AccountCaisse(models.Model):
             'type':'ir.actions.act_window',
         }
 
-
     @api.model
     def create(self, values):
         type_caisse = self.env['type.caisse'].browse(int(values['type_id']))
@@ -345,19 +340,17 @@ class AccountCaisse(models.Model):
         values['company_id'] = company_id
         result = super().create(values)
 
-        # Vérification d’unicité sur la période et le type
         caisses = self.env['account.caisse'].search([
             ('date_start', '>=', values['date_start']),
             ('date_end', '<=', values['date_end']),
             ('type_id', '=', values['type_id']),
             ('company_id', '=', company_id)
         ])
-        # if len(caisses) > 1:
-        #     raise UserError(_('Une caisse existe déjà sur cette période pour cette société.'))
 
         return result
 
     def unlink(self):
+
         for rec in self:
             if rec.state in ['confirmed','posted']:
                 raise UserError(_('Impossible de supprimer le relevé dans cet état'))
@@ -390,8 +383,6 @@ class AccountCaisse(models.Model):
             if rec.state == 'draft':
                 rec.state = 'confirmed'
                 rec.type_id.solde_caisse = rec.solde_final
-
-
 
     def annuler_caisse(self):
         for rec in self:
